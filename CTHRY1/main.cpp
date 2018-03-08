@@ -33,10 +33,10 @@ int main(int argc, char** argv)
 
 	try
 	{
-		// основной блок обработки
+		// the main block of processing
 		if (yyparse() == 0)
 		{
-			// так можно создать переменную polynomial
+			// this is the way how to create variable
 			polyResult.assignName("Lambda");
 
 			printf("Name = %s\nResult = %s\n", polyResult.getName(), polyResult.out().c_str());
@@ -70,7 +70,7 @@ int yylex()
 		return ALPHA;
 	}
 	
-	//ввод вещественных чисел
+	// get float numbers
 	if (isdigit(c)) 
 	{
 		const int BSZ = 50;
@@ -86,11 +86,11 @@ int yylex()
 			if (c == '.') 
 			{
 				if (dot++)
-					return ('.'); /* приводит к синт. ошибке */
+					return ('.'); // syntax error
 				continue;
 			}
 
-			/* конец числа */
+			// end of number
 			break;
 		}
 
@@ -101,7 +101,6 @@ int yylex()
 			return '.';
 		}
 		else
-			/* возврат последнего прочитанного символа */
 			ungetc(c, fin);
 
 		yylval.real_t = atof(buf);

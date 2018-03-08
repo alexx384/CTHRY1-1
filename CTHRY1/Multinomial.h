@@ -12,22 +12,22 @@ class NMK_FIND
 	std::vector<std::vector<uint>> pArray;
 	std::vector<uint> Array;
 
-	// найти сумму элементов v
+	// get sum of elements in vector v
 	uint sum(std::vector<uint> v);
 
-	// полный рекурсивный перебор значений от 0 до N
-	// Если сумма k1 + ... + kn == sumToGet, то сохранить этот набор
+	// full recursive iteration of values from 0 to N
+	// If the sum is k1+... + kn == sumToGet then to keep this vector
 	void frec(uint i = 0);
 
 public:
 
 	/*
-	Найти все числа s[i], количество которых sum_elements_cnt,
-	такие что сумма _sum(s[i]) = sum
+	Find all numbers s[i], the number of which sum_elements_cnt,
+	such that the sum _sum(s[i]) = sum
 	*/
 	NMK_FIND(uint sum_elements_cnt, uint sum);
 
-	// Возврат всех наборов длины n чисел s[i], для которых сумма _sum(s[i]) = sum
+	// Return all sets of length n of numbers s[i] for which sum _sum (s[i]) = sum
 	const std::vector<std::vector<uint>>& getArrays();
 };
 
@@ -36,9 +36,9 @@ class MultiNomial
 
 public:
 
-	// найти мультиномиальный коэффициент путем перемножения биномиальных коэффициентов
+	// find the polynomial coefficient by multiplying the binomial coefficients
 	static ulong BinomAr(const uint *numbers, uint Length);
 
-	// найти биномиальный коэффициент С(n, k)
+	// find the binomial coefficient C(n, k)
 	static ulong Binominal(ulong n, ulong k);
 };

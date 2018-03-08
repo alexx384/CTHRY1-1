@@ -82,7 +82,7 @@ std::string PolyElem::out(bool first)
 			s += "*" + std::string(1, elem.letter) + "^(" + doubleToString(elem.power) + ')';
 	}
 
-	// убрать: 1*x -> х
+	// remove: 1*x -> х
 	if (s.length() > 1 && s[0] == '1' && s[1] == '*')
 		return s.substr(2);
 
@@ -103,11 +103,12 @@ PolyElem operator^ (const PolyElem& leftPoly, const PolyElem& rightPoly)
 	return newPoly ^= rightPoly;
 }
 
-/*Возведение элемента полинома в степень, например, (11ab^2c^2)^(-2.08)
-Алгоритм:
-1) возвести в степень power = rightPoly.coefficient целочисленный коэффициент
-2) для каждой переменной умножить её текущую степень на степень power
-Если его степень стала равной 0, то удалить элемент из списка
+/*
+Exponentiation of polynomial element, for example (11a b^2c^2)^(-2.08)
+Algorithm:
+1) raise the coefficient to a degree
+2) for each variable multiply its current power by rightpoly.coef
+If its degree was equal to 0, then remove an item from the list
 */
 PolyElem operator^= (PolyElem& leftPoly, const PolyElem& rightPoly)
 {
@@ -124,7 +125,7 @@ PolyElem operator^= (PolyElem& leftPoly, const PolyElem& rightPoly)
 	for (auto& elem : newPolyList)
 		elem.power *= power;
 
-	// нашли нулевую степень -> 1 -> убираем из списка букву
+	// found a zero degree -> 1 -> remove from list letter
 	newPolyList.remove_if([](const Var& x) { return x.power == 0; });
 	return leftPoly;
 }
@@ -135,15 +136,15 @@ PolyElem operator* (const PolyElem& leftPoly, PolyElem rightPoly)
 	return newPoly *= rightPoly;
 }
 
-/*Умножение элементов в полиноме, таких как 111 abc 111abc 11ab^2c^2
-Алгоритм:
-1) Перемножить коэф. полиномов, затем поэлементно в списке left:
-1.1) если нашли такую же букву в right, то увеличиваем степень элемента
-в left на степень элемента в right и удаляем тот элемент from right
+/*
+Multiplication of elements in polynomial such as 111abc111a b c 11 a b^2c^2
+Algorithm:
+1) Multiply the coef. polynomials, and then element by element in the list left:
+	1.1) if found the same letter in the right, increase the degree of the element
+	in left on the degree of the element in right and remove that element from right
 
-2) Если список right не пустой, то присоединить элементы из right к left
-3) Возврат left (newPoly)
-
+2) if the right list is not empty, attach elements from right to left
+3) Return left (newPoly)
 */
 PolyElem operator*= (PolyElem& leftPoly, PolyElem rightPoly)
 {
@@ -162,7 +163,7 @@ PolyElem operator*= (PolyElem& leftPoly, PolyElem rightPoly)
 		auto elem = std::find_if(right.begin(), right.end(),
 			[&left_e](const Var &x)->bool { return x.letter == left_e.letter; });
 
-		// нашли
+		// found
 		if (elem != right.end())
 		{
 			left_e.power += elem->power;
@@ -170,11 +171,13 @@ PolyElem operator*= (PolyElem& leftPoly, PolyElem rightPoly)
 		}
 	}
 
-	// нашли нулевую степень -> 1 -> убираем из списка букву
+	// found a zero degree -> 1 -> remove from list letter
 	left.remove_if([](const Var& x) { return x.power == 0; });
 
 	// (2, 3)
 	left.insert(left.end(), right.begin(), right.end());
+
+	// ab != ba -> sort
 	left.sort();
 	return leftPoly;
 }
@@ -276,11 +279,11 @@ Polynomial operator+ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 }
 
 /*
-Сложение двух полиномов
-Алгоритм:
-1) Для каждого элемента в списке right ищем в списке left элемент, у которого variableList такой же
-2)	- Если элемент нашелся, то складываем целочисленные коэффициенты элементов
-- Иначе присоединяем элемент из списка right к списку left
+The addition of two polynomials
+Algorithm:
+1) For each element in the list right find the left element, which variableList is the same
+2 ) - if the element is found, then add the integer coefficients of the elements
+	- Otherwise, attach the item from the right list to the left list
 */
 Polynomial operator+= (Polynomial& leftPoly, const Polynomial& rightPoly)
 {
@@ -302,10 +305,10 @@ Polynomial operator+= (Polynomial& leftPoly, const Polynomial& rightPoly)
 			left.insert(left.cend(), right_e);
 	}
 
-	// убрать элементы с нулевыми коэф - ми
+	// remove elements with zero coefficients
 	left.remove_if([](const PolyElem& x) { return x.coefficient == 0; });
 
-	// получился 0
+	// got 0
 	if (left.empty())
 	{
 		PolyElem x;
@@ -329,12 +332,12 @@ Polynomial operator-= (Polynomial& leftPoly, const Polynomial& rightPoly)
 }
 
 /*
-Умножение двух полиномов
-Алгоритм: (a1 .. aN) (b1 .. bN) -> перемножаем все элементы и складываем
+Multiplication of two polynomials
+Algorithm: (a1 .. aN) (b1 .. bN) - > multiply all elements and add
 */
 Polynomial operator* (const Polynomial& leftPoly, const Polynomial& rightPoly)
 {
-	// проверка 0 * () и () * 0
+	// check 0 * () и () * 0
 	if (leftPoly.listPoly.size() == 1 && leftPoly.listPoly.front().coefficient == 0
 		|| rightPoly.listPoly.size() == 1 && rightPoly.listPoly.front().coefficient == 0)
 	{
@@ -357,7 +360,7 @@ Polynomial operator* (const Polynomial& leftPoly, const Polynomial& rightPoly)
 }
 
 /*
-Возведение в степень: (x1 + ... + xm) ^ n
+Exponentiation: (x1 + ... + xm) ^ n
 1) https://ru.wikipedia.org/wiki/%D0%9C%D1%83%D0%BB%D1%8C%D1%82%D0%B8%D0%BD%D0%BE%D0%BC%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9_%D0%BA%D0%BE%D1%8D%D1%84%D1%84%D0%B8%D1%86%D0%B8%D0%B5%D0%BD%D1%82
 2) https://habrahabr.ru/post/153255/
 */
@@ -373,13 +376,13 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 		const char*s = "In operation '(Polynomial) ^ n' n must be a non-negative integer";
 		const PolyElem& power = right.front();
 
-		// rightPoly - это число
+		// rightPoly is a number
 		assert(power.variableList.size() == 0, s);
 
-		// rightPoly - это целое число
+		// rightPoly is an integer number
 		assert(power.coefficient == (double)(int)power.coefficient, s);
 
-		// rightPoly - это целое неотрицательное число
+		// rightPoly - is a non-negative integer number
 		assert(power.coefficient >= 0, s);
 
 		const unsigned n = (const unsigned)power.coefficient;
@@ -400,7 +403,7 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 				PolyElem sum, pow;
 				sum.coefficient = (double)MultiNomial::BinomAr(arr.data(), m);
 
-				// m = listPoly.size()
+				// m equal to listPoly.size()
 				auto iter = leftPoly.listPoly.begin();
 
 				for (unsigned i = 0; i < m; i++)
