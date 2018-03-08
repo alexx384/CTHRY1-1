@@ -16,8 +16,7 @@
 
 %{
 
-// макрос на вывод
-
+// output macros
 #ifdef _DEBUG_OUT
 #define _out(val, s) polyResult = val; printf("%s: %s\n", s, polyResult.out().c_str())
 #else
@@ -51,40 +50,40 @@
 %%
 
 ////////////////////////////------ expr
-// бинарные и унарные оперции с различными приориетами
+// binary and unary operations
 
-//------- приоритет + -
+//------- priority + -
 expr_add: 	expr_mul;
 expr_add:	expr_add '+' expr_mul 		{$$ = calculate($1, $3, '+'); _out($$, "bin '+'");}
 expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); _out($$, "bin '-'");}
 
-//------- приоритет + -
+//------- priority + -
 
 
 
-//------- приоритет * /
+//------- priority * /
 
-// можно число умножить на букву: 2a, ab
+// it;s possible to multiply number on letter: 2a, ab
 expr_mul:	expr_mul ALPHA 				{$$ = calculate($1, Polynomial(1, $2), '*'); _out($$, "alpha bin '*'");}
 
 expr_mul:	expr_pow;
 expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); _out($$, "bin '*'");}
 
-//------- приоритет * /
+//------- priority * /
 
 
 
-//------- приоритет ^
+//------- priority ^
 expr_pow: 	primary;
 expr_pow:	primary '^' expr_pow 		{$$ = calculate($1, $3, '^'); _out($$, "bin '^'");}
 
 expr_pow: 	'-' primary 				{$$ = calculate(Polynomial(0), $2, '-'); _out($$, "unary '-'"); }
 expr_pow:	'-' primary '^' expr_pow 	{$$ = calculate(Polynomial(0), calculate($2, $4, '^'), '-'); _out($$, "bin '^'; unary '-'"); }
 
-//------- приоритет ^
+//------- priority ^
 
 
-// наивысший приоритет: число, буква и скобки с выражением	
+// highest priority: number, letter and brackets with term
 primary:	ALPHA						{ $$ = Polynomial(1, $1); _out($$, "Alpha"); }
 primary: 	CONST 						{ $$ = Polynomial($1);    _out($$, "Constant"); }
 primary: 	'(' expr_add ')' 			{ $$ = $2; _out($$, "(Term)"); }
