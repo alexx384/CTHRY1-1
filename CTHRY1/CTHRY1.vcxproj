@@ -115,6 +115,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Multinomial.h" />
+    <ClInclude Include="Poly.h" />
+    <ClInclude Include="YACC\parse.cpp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="YACC\bison.simple" />
+    <None Include="YACC\lex.y" />
+    <None Include="YACC\parse.cpp.output" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Multinomial.cpp" />
+    <ClCompile Include="Poly.cpp" />
+    <ClCompile Include="YACC\parse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
