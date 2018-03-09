@@ -1,11 +1,8 @@
 #include "../Poly.h"
 typedef struct 
 {
-	// Var
 	Polynomial poly_t;
-	std::string string_t;
-
-	// char string real int
+	
 	int int_t;
 	double real_t;
 } YYSTYPE;

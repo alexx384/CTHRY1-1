@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Assert.h"
 #include <list>
 #include <string>
 #include <vld.h>
@@ -66,16 +67,21 @@ class Polynomial
 public:
 
 	// ax^n ival - a, cval - x, ipow - n
-	Polynomial(const double& ival = 0, const char& cval = 0, const double& ipow = 1);
+	Polynomial(const double& ival, const char& cval = 0, const double& ipow = 1);
 
-	// get list value without a name
-	std::list<PolyElem>& getValue();
+	bool None() { return listPoly.empty(); }
+
+	// empty list for non - initialized operands
+	Polynomial() = default;
 
 	// assign name to polynomial (need for variables)
 	void assignName(const std::string& x);
 
 	// get name of polynomial (need for variables)
 	const std::string& getName();
+
+	// get the value of polynomial (need for variables)
+	std::list<PolyElem>& getValue();
 
 	Polynomial operator= (const Polynomial &e);
 

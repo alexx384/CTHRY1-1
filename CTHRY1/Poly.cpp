@@ -1,4 +1,3 @@
-#include "Assert.h"
 #include "Poly.h"
 #include <algorithm>
 
@@ -207,11 +206,6 @@ Polynomial::Polynomial(const double& ival, const char& cval, const double& ipow)
 	listPoly.push_back(e);
 }
 
-std::list<PolyElem>& Polynomial::getValue()
-{
-	return this->listPoly;
-}
-
 void Polynomial::assignName(const std::string& x)
 {
 	assert(this->name.empty(), "Name to variable has been already assigned");
@@ -223,6 +217,11 @@ const std::string& Polynomial::getName()
 	return name;
 }
 
+std::list<PolyElem>& Polynomial::getValue()
+{
+	return this->listPoly;
+}
+
 Polynomial Polynomial::operator= (const Polynomial &e)
 {
 	this->listPoly = e.listPoly;
@@ -232,6 +231,9 @@ Polynomial Polynomial::operator= (const Polynomial &e)
 
 std::string Polynomial::out(bool in_column)
 {
+	if (this->listPoly.empty())
+		return "Not initialized";
+
 	std::string nl = in_column ? "\n" : "";
 
 	listPoly.sort([](const PolyElem &a, const PolyElem &b)->bool { return a > b; });

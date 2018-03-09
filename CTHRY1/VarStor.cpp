@@ -3,11 +3,10 @@
 
 void VarStor::addVar(const std::string& VarName, const Polynomial& EntireVar)
 {
-	VarPoly var = { EntireVar , false };
-	this->Stor.emplace(VarName, var);
+	this->Stor.emplace(VarName, EntireVar);
 }
 
-VarPoly* VarStor::getVarByName(const std::string& VarName)
+Polynomial* VarStor::getVarByName(const std::string& VarName)
 {
 	//Find variable
 	auto it = Stor.find(VarName);
@@ -28,31 +27,38 @@ VarStor gVarStorage;
 // update and mark it initialized
 void updateStorage(const std::string name, const Polynomial& val)
 {
-	VarPoly* var = gVarStorage.getVarByName(name);
+	Polynomial* poly = gVarStorage.getVarByName(name);
 	
-	if (var)
-	{
-		var->is_initialized = true;
-		var->poly = val;
-	}
+	if (poly)
+		*poly = val;
 }
 
-Polynomial createVariable(std::string& name)
+Polynomial createVariable(std::string name)
 {
-	Polynomial x(0);
+	// empty non-initialized
+	Polynomial x;
 
 	if (gVarStorage.variableExists(name))
-		x = gVarStorage.getVarByName(name)->poly;
+		x = *gVarStorage.getVarByName(name);
 	
 	else
 	{
-		gVarStorage.addVar(name, x);
 		x.assignName(name);
+		gVarStorage.addVar(name, x);
 	}
 	
-	name.clear();
 	return x;
 }
+
+/*
+| 				|	name	|	empty list (None = true) |
+| 				|			|							 |
+| polynomial	|	no		|		no					 |
+| 				|			|							 |
+| variable		|	yes		|	yes if not initalized	 |
+| 				|			|	no if initialized		 |
+| 				|			|							 |
+*/
 
 Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 {
@@ -61,17 +67,11 @@ Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 
 	try
 	{
-		// value can not be assigned to variable without a name
+		// value can only be assigned to variable, not polynomial
 		assert(!leftName.empty(), "Value can not be assigned to left operand");
 
-		const VarPoly* right_var = gVarStorage.getVarByName(rightName);
-
-		if (right_var)
-		{
-			// if right operand is variable it must be initialized
-			if (!rightName.empty())
-				assert(right_var->is_initialized, "Right operand was used without being initialized");
-		}
+		// if rightpoly is not initialized variable
+		assert(!rightPoly.None(), "Right operand was used without being initialized");
 
 		leftPoly.getValue() = rightPoly.getValue();
 		updateStorage(leftName, leftPoly);
@@ -84,7 +84,7 @@ Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 
 		printf("Assignment exception occured: %s\n", e.what());
 		printf("Operation [ %s ] = [ %s ]\n", poly_left.c_str(), poly_right.c_str());
-		throw std::exception();
+		throw std::exception("");
 	}
 
 	return leftPoly;
@@ -96,15 +96,34 @@ void check(Polynomial& leftPoly, Polynomial& rightPoly)
 {
 	const std::string& leftName = leftPoly.getName();
 	const std::string& rightName = rightPoly.getName();
-	const VarPoly* right_var = gVarStorage.getVarByName(rightName);
-	const VarPoly* left_var = gVarStorage.getVarByName(leftName);
 
-	// this is a variable
-	if (!leftName.empty())
-		assert(left_var->is_initialized, "Left operand was used without being initialized");
+	// poly + poly
+	if (leftName.empty() && rightName.empty())
+		return;
 
-	if (!rightName.empty())
-		assert(right_var->is_initialized, "Right operand was used without being initialized");
+	const char *r = "Right operand was used without being initialized";
+	const char *l = "Left operand was used without being initialized";
+
+	// var + var
+	if (!leftName.empty() && !rightName.empty())
+	{
+		assert(!leftPoly.None(), l);
+		assert(!rightPoly.None(), r);
+	}
+
+	// var + poly or poly + var
+	else
+	{
+		// poly + var
+		if (leftName.empty())
+		{
+			assert(!rightPoly.None(), r);
+		}
+		else
+		{
+			assert(!leftPoly.None(), l);
+		}
+	}
 }
 
 Polynomial calculate(Polynomial a, Polynomial b, char op)
@@ -138,14 +157,14 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 
 	catch (std::exception e)
 	{
-		std::string poly_a = a.out();
-		std::string poly_b = b.out();
+		std::string poly_a = !a.getName().empty() ? "_" + a.getName() + "_" : a.out();
+		std::string poly_b = !b.getName().empty() ? "_" + b.getName() + "_" : b.out();
 
 		printf("Calculation exception occured: %s\n", e.what());
 		printf("Operation: [ %s ] %c [ %s ]\n",
 			poly_a.c_str(), op, poly_b.c_str());
 
-		throw std::exception();
+		throw std::exception("");
 	}
 
 	updateStorage(c.getName(), c);

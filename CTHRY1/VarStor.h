@@ -3,13 +3,7 @@
 #include <map>
 #include "Poly.h"
 
-struct VarPoly
-{
-	Polynomial poly;	
-	bool is_initialized;
-};
-
-// varialble storage
+// variable storage
 class VarStor
 {
 public:
@@ -18,7 +12,7 @@ public:
 
 	void addVar(const std::string& VarName, const Polynomial& EntireVar);	
 
-	VarPoly* getVarByName(const std::string& VarName);
+	Polynomial* getVarByName(const std::string& VarName);
 
 	bool variableExists(std::string key)
 	{
@@ -27,14 +21,14 @@ public:
 
 private:
 
-	std::map<const std::string, VarPoly> Stor;
+	std::map<const std::string, Polynomial> Stor;
 };
 
 // basic function for calculation
 Polynomial calculate(Polynomial a, Polynomial b, char op);
 
 // create variable and mark it as not initialized
-Polynomial createVariable(std::string& name);
+Polynomial createVariable(const std::string name);
 
 // assign value of right poly variable to left poly variable
 Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly);

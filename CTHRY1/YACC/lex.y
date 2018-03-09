@@ -9,11 +9,8 @@
 
 %union 
 {
-	// Var
 	Polynomial poly_t;
-	std::string string_t;
-
-	// char string real int
+	
 	int int_t;
 	double real_t;
 }
@@ -24,13 +21,13 @@
 
 // output macros
 #ifdef _DEBUG_OUT
-#define _out(val, s) printf("%s: %s\n", s, val##.out().c_str())
+#define _out(val, s) \
+printf("%s: %s [%s]\n", s, val##.getName().c_str(), val##.out().c_str())
 #else
 #define _out(val, s) 
 #endif
 
 #include <malloc.h>
-#include <math.h>
 
 	Polynomial polyResult;
 	
@@ -44,7 +41,7 @@
 //-- simple operands 
 
 %type <poly_t> variable 
-%type <string_t> string 
+%type <int_t> string 
 
 %type <real_t> REAL
 %type <real_t> INT
@@ -64,17 +61,41 @@
 %type <poly_t> expr_mul
 %type <poly_t> expr_pow
 
+/////////////------- C functions for label 'string'
+
+%{
+
+#define MAXSZ 255
+
+// buf for input string
+char gBuf[MAXSZ + 1] = { 0 };
+int gIndex = 0;
+
+// append one char
+void s_append(int app);
+
+// append int number to string
+void s_append(double _app);
+
+// clear buf
+void s_destroy();
+	
+%}
+
+/////////////------- C functions for label 'string'
+
 %%
+
 /////////////------------ strings and variables
 // string is a sequence of numeric letters and alpha letters
 
-string: CHAR 		{ $$ = std::string(1, $1); 	}
-string: string CHAR { $$ += std::string(1, $2); }
+string: CHAR 		{ $$ = 0; s_append($1); }
+string: string CHAR { $$ = 0; s_append($2); }
 
-string: INT 		{ $$ = std::to_string($1);	}
-string: string INT 	{ $$ += std::to_string($2); }
+string: INT 		{ $$ = 0; s_append($1);}
+string: string INT 	{ $$ = 0; s_append($2); }
 
-variable: '_' string '_' { $$ = createVariable($2); }
+variable: '_' string '_' { $$ = createVariable(gBuf); s_destroy(); }
 
 /////////////------------ strings and variables
 
@@ -82,8 +103,8 @@ variable: '_' string '_' { $$ = createVariable($2); }
 ///////////---- start here
 
 operation: expr_equal /* explicitly ';' */ { $$ = 0; }
-operation: expr_equal '<' expr_equal { $$ = 0; };
-operation: expr_equal '>' expr_equal { $$ = 0; };
+//operation: expr_equal '<' expr_equal { $$ = 0; };
+//operation: expr_equal '>' expr_equal { $$ = 0; };
 
 ////////////////////////////------ expr
 // binary and unary operations
@@ -144,3 +165,37 @@ primary: 	'(' expr_add ')' 			{ $$ = $2; _out($$, "(Term)"); }
 ////////////////////////////------ expr	
 
 %%
+
+void s_append(int app)
+{
+	assert(gIndex < MAXSZ, "Input string is too long");
+	gBuf[gIndex++] = app;
+}
+
+void s_append(double _app)
+{
+	int app = (int)_app;
+	int oldIndex = gIndex;
+
+	while (app)
+	{
+		assert(gIndex < MAXSZ, "Input string is too long");
+
+		gBuf[gIndex++] = (app % 10) + '0';
+		app /= 10;
+	}
+
+	int tmp;
+	for (int i = oldIndex; i < gIndex / 2; i++)
+	{
+		tmp = gBuf[gIndex - i - 1];
+		gBuf[gIndex - i - 1] = gBuf[i];
+		gBuf[i] = tmp;
+	}
+}
+
+void s_destroy()
+{
+	gIndex = 0;
+	memset(gBuf, 0, MAXSZ);
+}

@@ -6,11 +6,9 @@
 
 #define YYPARSE_PARAM
 extern int yyparse(YYPARSE_PARAM);
-extern Polynomial polyResult;
 
 FILE* fin = nullptr;
 void showError();
-
 
 void usage()
 {
@@ -48,21 +46,15 @@ int main(int argc, char** argv)
 
 			if (c == EOF)
 				break;
-
-			//// this is the way how to create variable
-			//polyResult.assignName("Lambda");
-			//
-			//printf("Name = %s\nResult = %s\n", polyResult.getName(), polyResult.out().c_str());
 		}
-
 	}
 
 	catch (std::exception e) 
 	{ 
-		if (e.what() != nullptr)
-			printf("Unhandled exception occured: %s\n", e.what());
+		if (strlen(e.what()) > 0)
+			printf("Exception occured: %s\n", e.what());
 
-		printf("\nStopping execution of '%s' due to errors\n", argv[1]); 
+		printf("Stopping execution of '%s' due to errors\n", argv[1]); 
 	}
 
 	fclose(fin);
@@ -75,14 +67,62 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+
+//////////////////////////
+
 int yylex()
 {
+	start:
+
+	// skip spaces and next lines
 	int c = fgetc(fin);
 	while (c == ' ' || c == '\n')
 		c = fgetc(fin);
 	
+	// end of operation
 	if (c == ';')
 		return 0;
+
+	// comments
+	if (c == '/')
+	{
+		c = fgetc(fin);
+
+		// comments begin
+		if (c == '/')
+		{
+			c = fgetc(fin);
+			while (c != '\n')
+				c = fgetc(fin);
+
+			// comments end -> go to begin
+			goto start;
+		}
+	
+		// '/* */' comments begin
+		else if (c == '*')
+		{
+		begin:
+
+			c = fgetc(fin);
+			while (c != '*' && c != EOF)
+				c = fgetc(fin);
+
+			assert(c != EOF, "Unexpected end of file, but no comment ending */ found");
+
+			// comments end -> go to begin
+			if ((c = fgetc(fin)) == '/')
+				goto start;
+			else
+			{
+				ungetc(c, fin);
+				goto begin;
+			}
+		}
+
+		else 
+			ungetc(c, fin);
+	}
 
 	if (isalpha(c))
 	{
@@ -141,12 +181,12 @@ void yyerror(const char *s)
 }
 
 
-
 ////////////
 // find error position
 
 void showError()
 {
+
 	unsigned int FilePos = ftell(fin);
 	rewind(fin);
 
@@ -181,4 +221,3 @@ void showError()
 
 	printf("The error character is: '%c'\nOn line '%u' with position '%u'\n", (char)chr, LineNum + 1, LinePos);
 }
-
