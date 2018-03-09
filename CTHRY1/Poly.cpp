@@ -1,5 +1,4 @@
 #include "Poly.h"
-#include "Multinomial.h"
 #include <algorithm>
 
 #ifdef _DEBUG
@@ -245,7 +244,7 @@ std::string Polynomial::out(bool in_column)
 	std::string nl = in_column ? "\n" : "";
 
 	listPoly.sort([](const PolyElem &a, const PolyElem &b)->bool { return a > b; });
-	listPoly.reverse();
+	//listPoly.reverse();
 
 	auto iter = listPoly.begin();
 	auto iend = listPoly.end();
@@ -373,7 +372,7 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 		return Polynomial(leftPoly.listPoly.front() ^ right.front());
 	else
 	{
-		const char*s = "In operation '(Polynomial) ^ n' n must be a non-negative integer";
+		const char* s = "In operation '(Polynomial) ^ n' n must be a non-negative integer";
 		const PolyElem& power = right.front();
 
 		// rightPoly is a number
@@ -386,7 +385,6 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 		assert(power.coefficient >= 0, s);
 
 		const unsigned n = (const unsigned)power.coefficient;
-		const unsigned m = (const unsigned)leftPoly.listPoly.size();
 
 		if (n == 0)
 			return Polynomial(1);
@@ -394,27 +392,12 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 			return leftPoly;
 		else
 		{
-			Polynomial result(0);
-			NMK_FIND nmk = NMK_FIND(m, n);
+			Polynomial result = Polynomial(1);
+			Polynomial copy = leftPoly;
 
-			auto& k = nmk.getArrays();
-			for (const auto& arr : k)
-			{
-				PolyElem sum, pow;
-				sum.coefficient = (double)MultiNomial::BinomAr(arr.data(), m);
+			for (unsigned i = 0; i < n; i++)
+				result = result * copy;
 
-				// m equal to listPoly.size()
-				auto iter = leftPoly.listPoly.begin();
-
-				for (unsigned i = 0; i < m; i++)
-				{
-					pow.coefficient = arr[i];
-					sum *= (*iter ^ pow);
-					iter++;
-				}
-
-				result += Polynomial(sum);
-			}
 			return result;
 		}
 	}

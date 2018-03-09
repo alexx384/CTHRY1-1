@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Multinomial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Poly.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -41,9 +38,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Multinomial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Poly.cpp">

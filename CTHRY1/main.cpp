@@ -33,13 +33,24 @@ int main(int argc, char** argv)
 
 	try
 	{
-		// the main block of processing
-		if (yyparse() == 0)
-		{
-			// this is the way how to create variable
-			polyResult.assignName("Lambda");
+		int c;
 
-			printf("Name = %s\nResult = %s\n", polyResult.getName(), polyResult.out().c_str());
+		// the main block of processing
+		while (yyparse() == 0)
+		{
+			c = fgetc(fin);
+			while (c == ' ' || c == '\n')
+				c = fgetc(fin);
+
+			ungetc(c, fin);
+
+			if (c == EOF)
+				break;
+
+			//// this is the way how to create variable
+			//polyResult.assignName("Lambda");
+			//
+			//printf("Name = %s\nResult = %s\n", polyResult.getName(), polyResult.out().c_str());
 		}
 
 	}
@@ -58,16 +69,17 @@ int main(int argc, char** argv)
 
 int yylex()
 {
-	int c;
-	while ((c = fgetc(fin)) == ' ');
+	int c = fgetc(fin);
+	while (c == ' ' || c == '\n')
+		c = fgetc(fin);
 	
-	if (c == EOF)
+	if (c == ';')
 		return 0;
 
 	if (isalpha(c))
 	{
 		yylval.int_t = c;
-		return ALPHA;
+		return CHAR;
 	}
 	
 	// get float numbers
@@ -104,7 +116,7 @@ int yylex()
 			ungetc(c, fin);
 
 		yylval.real_t = atof(buf);
-		return (CONST);
+		return yylval.real_t == (double)(int)yylval.real_t ? INT : REAL;
 	}
 
 	
