@@ -21,6 +21,9 @@
     <ClInclude Include="YACC\parse.cpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VarStor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="YACC\bison.simple">
@@ -41,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Poly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VarStor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
