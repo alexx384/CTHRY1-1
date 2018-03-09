@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="Multinomial.h" />
     <ClInclude Include="Poly.h" />
+    <ClInclude Include="VarStor.h" />
     <ClInclude Include="YACC\parse.cpp.h" />
   </ItemGroup>
   <ItemGroup>
@@ -128,6 +129,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Multinomial.cpp" />
     <ClCompile Include="Poly.cpp" />
+    <ClCompile Include="VarStor.cpp" />
     <ClCompile Include="YACC\parse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
