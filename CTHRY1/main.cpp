@@ -9,6 +9,8 @@ extern int yyparse(YYPARSE_PARAM);
 extern Polynomial polyResult;
 
 FILE* fin = nullptr;
+void showError();
+
 
 void usage()
 {
@@ -55,7 +57,13 @@ int main(int argc, char** argv)
 
 	}
 
-	catch (std::exception) { printf("Stopping execution of '%s' due to errors\n", argv[1]); }
+	catch (std::exception e) 
+	{ 
+		if (e.what() != nullptr)
+			printf("Unhandled exception occured: %s\n", e.what());
+
+		printf("\nStopping execution of '%s' due to errors\n", argv[1]); 
+	}
 
 	fclose(fin);
 	
@@ -106,6 +114,9 @@ int yylex()
 			break;
 		}
 
+		if (*(cp - 1) == '.')
+			return '.';
+
 		*cp = ' ';
 		if (cp - buf >= BSZ)
 		{
@@ -126,4 +137,48 @@ int yylex()
 void yyerror(const char *s)
 {
 	printf("Error while parsing: '%s'\n", s);
+	showError();
 }
+
+
+
+////////////
+// find error position
+
+void showError()
+{
+	unsigned int FilePos = ftell(fin);
+	rewind(fin);
+
+	int chr;
+
+	unsigned int LineNum = 0;
+	unsigned int LinePos = 0;
+
+	for (unsigned int i = 0; i < FilePos; i++, LinePos++)
+	{
+		chr = fgetc(fin);
+		if (chr == '\n')
+		{
+			chr = fgetc(fin);
+
+			//If Windows line ending like '\n\r'
+			if (chr == '\r')
+			{
+				chr = fgetc(fin);
+			}
+
+			++LineNum;
+			LinePos = 0;
+		}
+
+		if (chr == EOF)
+		{
+			printf("Error while obtaining error\n");
+			return;
+		}
+	}
+
+	printf("The error character is: '%c'\nOn line '%u' with position '%u'\n", (char)chr, LineNum + 1, LinePos);
+}
+

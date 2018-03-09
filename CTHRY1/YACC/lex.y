@@ -1,16 +1,19 @@
-%token REAL INT CHAR IEND
+%token REAL INT CHAR
 %start operation
 
 ////////////////------------------- inline C code
 
 %{
-	#include "../Poly.h"
+	#include "../VarStor.h"
 %}
 
 %union 
 {
+	// Var
 	Polynomial poly_t;
 	std::string string_t;
+
+	// char string real int
 	int int_t;
 	double real_t;
 }
@@ -71,7 +74,7 @@ string: string CHAR { $$ += std::string(1, $2); }
 string: INT 		{ $$ = std::to_string($1);	}
 string: string INT 	{ $$ += std::to_string($2); }
 
-variable: '_' string '_' { $$ = Polynomial(); }
+variable: '_' string '_' { $$ = createVariable($2); }
 
 /////////////------------ strings and variables
 
@@ -79,13 +82,15 @@ variable: '_' string '_' { $$ = Polynomial(); }
 ///////////---- start here
 
 operation: expr_equal /* explicitly ';' */ { $$ = 0; }
+operation: expr_equal '<' expr_equal { $$ = 0; };
+operation: expr_equal '>' expr_equal { $$ = 0; };
 
 ////////////////////////////------ expr
 // binary and unary operations
 
 //------- priority =
 
-expr_equal:	expr_add '=' expr_equal	{$$ = $3; _out($$, "bin '='");}
+expr_equal:	expr_add '=' expr_equal	{$$ = assignVar($1, $3); _out($$, "bin '='");}
 expr_equal: expr_add;
 
 //------- priority =

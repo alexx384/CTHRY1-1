@@ -68,11 +68,14 @@ public:
 	// ax^n ival - a, cval - x, ipow - n
 	Polynomial(const double& ival = 0, const char& cval = 0, const double& ipow = 1);
 
+	// get list value without a name
+	std::list<PolyElem>& getValue();
+
 	// assign name to polynomial (need for variables)
-	void assignName(const char* x);
+	void assignName(const std::string& x);
 
 	// get name of polynomial (need for variables)
-	const char* getName();
+	const std::string& getName();
 
 	Polynomial operator= (const Polynomial &e);
 
@@ -99,5 +102,3 @@ public:
 	friend Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly);
 };
 
-// basic function for calculation
-Polynomial calculate(Polynomial a, Polynomial b, char op);

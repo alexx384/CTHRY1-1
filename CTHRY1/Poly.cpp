@@ -1,20 +1,6 @@
+#include "Assert.h"
 #include "Poly.h"
 #include <algorithm>
-
-#ifdef _DEBUG
-#define assert(x, s)											\
-if (!(x)) throw std::exception(('\'' + std::string(s) + '\''	\
-+ "\nFUNCTION: " + std::string(__FUNCTION__)					\
-+ "\nFILE: "	+ std::string(__FILE__) +  						\
-+ "\nLINE: " + std::to_string(__LINE__)).c_str())		
-
-#else
-
-#define assert(x,s) if (!(x))	\
-throw std::exception(('\'' + std::string(s) + '\'').c_str())
-
-#endif // DEBUG
-
 
 std::string doubleToString(double x)
 {
@@ -221,21 +207,26 @@ Polynomial::Polynomial(const double& ival, const char& cval, const double& ipow)
 	listPoly.push_back(e);
 }
 
-void Polynomial::assignName(const char* x)
+std::list<PolyElem>& Polynomial::getValue()
+{
+	return this->listPoly;
+}
+
+void Polynomial::assignName(const std::string& x)
 {
 	assert(this->name.empty(), "Name to variable has been already assigned");
 	name = x;
 }
 
-const char* Polynomial::getName()
+const std::string& Polynomial::getName()
 {
-	assert(!name.empty(), "No name was assigned to variable");
-	return name.c_str();
+	return name;
 }
 
 Polynomial Polynomial::operator= (const Polynomial &e)
 {
 	this->listPoly = e.listPoly;
+	this->name = e.name;
 	return *this;
 }
 
@@ -404,46 +395,3 @@ Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 }
 
 #pragma endregion POLYNOMIAL
-
-Polynomial calculate(Polynomial a, Polynomial b, char op)
-{
-	Polynomial c;
-
-	try
-	{
-		assert(op == '+' || op == '-' || op == '*' || op == '^', "Unknown operation");
-
-		switch (op)
-		{
-		case '+':
-			c = a + b;
-			break;
-
-		case '-':
-			c = a - b;
-			break;
-
-		case '*':
-			c = a * b;
-			break;
-
-		case '^':
-			c = a ^ b;
-			break;
-		}
-	}
-
-	catch (std::exception e)
-	{
-		std::string poly_a = a.out();
-		std::string poly_b = b.out();
-
-		printf("Calculation exception occured: %s\n", e.what());
-		printf("Operation: [ %s ] %c [ %s ]\n",
-			poly_a.c_str(), op, poly_b.c_str());
-
-		throw std::exception();
-	}
-
-	return c;
-}

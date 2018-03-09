@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     f = open('parse.cpp.h', 'w')
     
-    if (False == s.startswith('#include "../Poly.h"\n')):
+    if (False == s.startswith('#include "../VarStor.h"\n')):
         s = '#include "../Poly.h"\n' + s    
 
     f.write(s)

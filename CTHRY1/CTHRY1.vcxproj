@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Assert.h" />
     <ClInclude Include="Poly.h" />
     <ClInclude Include="VarStor.h" />
     <ClInclude Include="YACC\parse.cpp.h" />
