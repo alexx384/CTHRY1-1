@@ -3,7 +3,7 @@
 #include "Assert.h"
 #include <list>
 #include <string>
-#include <vld.h>
+//#include <vld.h>
 
 struct Var
 {
@@ -76,6 +76,9 @@ public:
 
 	// assign name to polynomial (need for variables)
 	void assignName(const std::string& x);
+
+	// remove thename of polynomial
+	void untieName() { this->name.clear(); }
 
 	// get name of polynomial (need for variables)
 	const std::string& getName();

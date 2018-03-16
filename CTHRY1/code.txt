@@ -1,5 +1,19 @@
-/* _a_ = a + b
-/* _a_ = 3;*/
-_b_ = 2;
 
-_Lambda_ = 1 + 2 * a ^ _b_ - 3 * a ^ 2 * _b_ ^ 2;
+;;;;;;;;
+
+// This is a code sample
+// Use $out <- val to output
+// Use $ as a space and $$ as a '\n'
+// String s = '' contains only alpha-numeric letters and ones allowed for use
+
+$out <- '@@@Poly@@@' <- 5$ <- '@@@start@@@' <- 2$$;
+
+_a_ = _b_ = 1;
+
+_a_ = (45 - 123.56*x^12)^2;
+_b_ = _a_ * 2;
+
+1+2+3+4+5;
+
+$out <- 'Result:' <- $ <- _b_ + 3 <- 4$ <- 2$$;
+$out <- 3$$ <- '###########Test' <- $ <- 'me#############' <- 3$$;

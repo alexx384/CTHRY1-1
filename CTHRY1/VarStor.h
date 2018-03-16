@@ -32,3 +32,11 @@ Polynomial createVariable(const std::string name);
 
 // assign value of right poly variable to left poly variable
 Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly);
+
+void set_stream(const std::string stream);
+
+void output(const char* s);
+
+void output(Polynomial& x);
+
+void output(int x, int ch);

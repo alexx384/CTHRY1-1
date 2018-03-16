@@ -167,8 +167,54 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 		throw std::exception("");
 	}
 
-	updateStorage(c.getName(), c);
+
+	/* delete names of copies of variables a and b
+	to avoid situations with operator '='
+	it copies the value and name of the polynomial
+	therefore if a or b is variable then var c
+	will get the name of one of them*/
+
+	c.untieName();
 	return c;
 }
 
 #pragma endregion Calculation
+
+#pragma region IO
+
+FILE* gStream;
+
+void set_stream(const std::string stream)
+{
+	gStream = stdout;
+}
+
+#pragma region output
+
+void output(const char* s)
+{
+	fprintf(gStream, "%s", s);
+}
+
+void output(Polynomial& x)
+{
+	// it's variable
+	if (!x.getName().empty())
+	{
+		std::string s = "Variable [ _" + x.getName() + "_ ] is used without being intialized";
+		assert(!x.None(), s);
+	}
+	
+		fprintf(gStream, "%s", x.out().c_str());
+}
+
+void output(int x, int ch)
+{
+	assert(x > 0, "Error in output stream");
+	for (int i = 0; i < x; i++)
+		putc(ch, gStream);
+}
+
+#pragma endregion output
+
+#pragma endregion IO

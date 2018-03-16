@@ -1,10 +1,24 @@
-%token REAL INT CHAR
+%token REAL INT CHAR STRING
 %start operation
 
 ////////////////------------------- inline C code
 
 %{
 	#include "../VarStor.h"
+	#define MAXSZ 255
+	
+	// buf for input string
+	char gBuf[MAXSZ + 1] = { 0 };
+	int gIndex = 0;
+	
+	// append one char
+	void AppendBuffer(int app);
+	
+	// clear buf
+	void ClearBuffer();
+	
+	// return buf data as string 
+	std::string GetBuffer();	
 %}
 
 %union 
@@ -17,22 +31,26 @@
 
 %{
 
-#define _DEBUG_OUT
+//#define _DEBUG_OUT
 
 // output macros
 #ifdef _DEBUG_OUT
-#define _out(val, s) \
+
+#define debug_out_p(val, s) \
 printf("%s: %s [%s]\n", s, val##.getName().c_str(), val##.out().c_str())
+
 #else
-#define _out(val, s) 
+#define debug_out_p(val, s) 
+
 #endif
+
+#define unused(x) x = 0
 
 #include <malloc.h>
 
-	Polynomial polyResult;
-	
-	extern void yyerror(const char *s);
-	extern int yylex();
+extern void yyerror(const char *s);
+extern int yylex();
+
 %}
 
 
@@ -61,57 +79,72 @@ printf("%s: %s [%s]\n", s, val##.getName().c_str(), val##.out().c_str())
 %type <poly_t> expr_mul
 %type <poly_t> expr_pow
 
-/////////////------- C functions for label 'string'
-
-%{
-
-#define MAXSZ 255
-
-// buf for input string
-char gBuf[MAXSZ + 1] = { 0 };
-int gIndex = 0;
-
-// append one char
-void s_append(int app);
-
-// append int number to string
-void s_append(double _app);
-
-// clear buf
-void s_destroy();
-	
-%}
-
-/////////////------- C functions for label 'string'
+// io operator
+%type <int_t> operator
+%type <int_t> out_operator
 
 %%
 
 /////////////------------ strings and variables
 // string is a sequence of numeric letters and alpha letters
 
-string: CHAR 		{ $$ = 0; s_append($1); }
-string: string CHAR { $$ = 0; s_append($2); }
+string: CHAR 		{ unused($$); }
+string: STRING 		{ unused($$); }
+string: INT 		{ unused($$); }
+string: REAL 		{ unused($$); }
 
-string: INT 		{ $$ = 0; s_append($1);}
-string: string INT 	{ $$ = 0; s_append($2); }
-
-variable: '_' string '_' { $$ = createVariable(gBuf); s_destroy(); }
+variable: '_' string '_' { $$ = createVariable(GetBuffer().c_str()); }
 
 /////////////------------ strings and variables
 
+/////////////------------ io operators
 
-///////////---- start here
+operator: out_operator { unused($$); }
 
-operation: expr_equal /* explicitly ';' */ { $$ = 0; }
-//operation: expr_equal '<' expr_equal { $$ = 0; };
-//operation: expr_equal '>' expr_equal { $$ = 0; };
+// out operator
+out_operator: '$' string 						{ unused($$); set_stream(GetBuffer().c_str()); 	}
+out_operator: operator '<''-' expr_equal 		{ unused($$); output($4); 						}
+out_operator: operator '<''-' '\'' string '\'' 	{ unused($$); output(GetBuffer().c_str()); 		}
+out_operator: operator '<''-' '\'' '\'' 		{ unused($$); }
+
+// space and \n
+out_operator: operator '<''-' INT '$'		 	{ unused($$); output(int($4), ' '); 			}
+out_operator: operator '<''-' '$' 				{ unused($$); output(int(1),  ' '); 			}
+out_operator: operator '<''-' INT '$''$'		{ unused($$); output(int($4), '\n'); 			}
+out_operator: operator '<''-' '$''$' 			{ unused($$); output(int(1),  '\n'); 			}
+
+
+/////////////------------ io operators
+
+
+///////////////------------///////////---- main block
+
+// empty operator
+operation: ';' { unused($$); }
+
+// io operator
+operation: operator ';' { unused($$); }
+
+// expression
+operation: expr_equal ';' { unused($$); }
+
+// combination
+operation: operation operator ';' { unused($$); }
+operation: operation expr_equal ';' { unused($$); }
+operation: operation ';' { unused($$); }
+
+
+///////////////------------///////////---- main block
+
+
+
 
 ////////////////////////////------ expr
 // binary and unary operations
 
 //------- priority =
 
-expr_equal:	expr_add '=' expr_equal	{$$ = assignVar($1, $3); _out($$, "bin '='");}
+expr_equal:	expr_add '=' expr_equal	{ $$ = assignVar($1, $3); debug_out_p($$, "bin '='");}
 expr_equal: expr_add;
 
 //------- priority =
@@ -120,8 +153,8 @@ expr_equal: expr_add;
 //------- priority + -
 
 expr_add: 	expr_mul;
-expr_add:	expr_add '+' expr_mul 		{$$ = calculate($1, $3, '+'); _out($$, "bin '+'");}
-expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); _out($$, "bin '-'");}
+expr_add:	expr_add '+' expr_mul 		{$$ = calculate($1, $3, '+'); debug_out_p($$, "bin '+'");}
+expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); debug_out_p($$, "bin '-'");}
 
 //------- priority + -
 
@@ -130,10 +163,10 @@ expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); _out($$, "bin '-
 //------- priority * /
 
 // it's possible to multiply number on letter: 2a, ab
-expr_mul:	expr_mul CHAR 				{$$ = calculate($1, Polynomial(1, $2), '*'); _out($$, "CHAR bin '*'");}
+expr_mul:	expr_mul CHAR 				{$$ = calculate($1, Polynomial(1, $2), '*'); debug_out_p($$, "CHAR bin '*'");}
 
 expr_mul:	expr_pow;
-expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); _out($$, "bin '*'");}
+expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); debug_out_p($$, "bin '*'");}
 
 //------- priority * /
 
@@ -141,10 +174,10 @@ expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); _out($$, "bin '*
 
 //------- priority ^
 expr_pow: 	primary;
-expr_pow:	primary '^' expr_pow 		{$$ = calculate($1, $3, '^'); _out($$, "bin '^'");}
+expr_pow:	primary '^' expr_pow 		{$$ = calculate($1, $3, '^'); debug_out_p($$, "bin '^'");}
 
-expr_pow: 	'-' primary 				{$$ = calculate(Polynomial(0), $2, '-'); _out($$, "unary '-'"); }
-expr_pow:	'-' primary '^' expr_pow 	{$$ = calculate(Polynomial(0), calculate($2, $4, '^'), '-'); _out($$, "bin '^'; unary '-'"); }
+expr_pow: 	'-' primary 				{$$ = calculate(Polynomial(0), $2, '-'); debug_out_p($$, "unary '-'"); }
+expr_pow:	'-' primary '^' expr_pow 	{$$ = calculate(Polynomial(0), calculate($2, $4, '^'), '-'); debug_out_p($$, "bin '^'; unary '-'"); }
 
 //------- priority ^
 
@@ -152,50 +185,33 @@ expr_pow:	'-' primary '^' expr_pow 	{$$ = calculate(Polynomial(0), calculate($2,
 //------- highest priority: number, letter
 
 // it's a letter or real/int number
-primary:	CHAR						{ $$ = Polynomial(1, $1); _out($$, "CHAR"); }
-primary: 	REAL 						{ $$ = Polynomial($1);    _out($$, "REAL"); }
-primary: 	INT 						{ $$ = Polynomial($1);    _out($$, "INT"); }
+primary:	CHAR						{ $$ = Polynomial(1, $1); debug_out_p($$, "CHAR"); }
+primary: 	REAL 						{ $$ = Polynomial($1);    debug_out_p($$, "REAL"); }
+primary: 	INT 						{ $$ = Polynomial($1);    debug_out_p($$, "INT"); }
 
 // it's a variable
-primary:	variable					{ $$ = $1; _out($$, "Variable"); }
+primary:	variable					{ $$ = $1; debug_out_p($$, "Variable"); }
 
 // it's an expression in brackets
-primary: 	'(' expr_add ')' 			{ $$ = $2; _out($$, "(Term)"); }
+primary: 	'(' expr_add ')' 			{ $$ = $2; debug_out_p($$, "(Term)"); }
 
 ////////////////////////////------ expr	
 
 %%
 
-void s_append(int app)
+void AppendBuffer(int app)
 {
 	assert(gIndex < MAXSZ, "Input string is too long");
 	gBuf[gIndex++] = app;
 }
 
-void s_append(double _app)
-{
-	int app = (int)_app;
-	int oldIndex = gIndex;
-
-	while (app)
-	{
-		assert(gIndex < MAXSZ, "Input string is too long");
-
-		gBuf[gIndex++] = (app % 10) + '0';
-		app /= 10;
-	}
-
-	int tmp;
-	for (int i = oldIndex; i < gIndex / 2; i++)
-	{
-		tmp = gBuf[gIndex - i - 1];
-		gBuf[gIndex - i - 1] = gBuf[i];
-		gBuf[i] = tmp;
-	}
-}
-
-void s_destroy()
+void ClearBuffer()
 {
 	gIndex = 0;
 	memset(gBuf, 0, MAXSZ);
+}
+
+std::string GetBuffer()
+{
+	return std::string(gBuf);
 }

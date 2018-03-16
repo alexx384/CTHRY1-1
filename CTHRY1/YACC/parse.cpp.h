@@ -1,4 +1,4 @@
-#include "../Poly.h"
+#include "../VarStor.h"
 typedef struct 
 {
 	Polynomial poly_t;
@@ -9,6 +9,7 @@ typedef struct
 #define	REAL	258
 #define	INT	259
 #define	CHAR	260
+#define	STRING	261
 
 
 extern YYSTYPE yylval;

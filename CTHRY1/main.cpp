@@ -4,11 +4,16 @@
 
 #include "YACC\parse.cpp.h"
 
+#define CODEFILE "ParserTmpFile.txt"
+
 #define YYPARSE_PARAM
 extern int yyparse(YYPARSE_PARAM);
 
+unsigned gInstruction = 0;
+
 FILE* fin = nullptr;
-void showError();
+void showError(const char* real);
+void removeComments(const char*, const char*);
 
 void usage()
 {
@@ -17,48 +22,56 @@ void usage()
 
 int main(int argc, char** argv)
 {
+	int c;
 	printf("Polynomial Language Interpreter is running\n\n");
 
 	if (argc != 2)
 	{
 		usage();
-		return 1;
+		goto main_end;
 	}
 
 	if (0 != fopen_s(&fin, argv[1], "r"))
 	{
 		printf("Could not open file '%s'. Exitting\n", argv[1]);
-		return 2;
+		goto main_end;
 	}
+
+	c = fgetc(fin);
+	fclose(fin);
+	
+	// empty file -> do nothing
+	if (c == EOF)
+		goto main_end;
 
 	try
 	{
-		int c;
+		// launch the copy without comments 
+		removeComments(argv[1], CODEFILE);
 
-		// the main block of processing
-		while (yyparse() == 0)
+		if (0 != fopen_s(&fin, CODEFILE, "r"))
 		{
-			c = fgetc(fin);
-			while (c == ' ' || c == '\n')
-				c = fgetc(fin);
-
-			ungetc(c, fin);
-
-			if (c == EOF)
-				break;
+			printf("Could not open file '%s'. Exitting\n", CODEFILE);
+			goto main_end;
 		}
+
+		yyparse();
 	}
 
 	catch (std::exception e) 
-	{ 
+	{
 		if (strlen(e.what()) > 0)
 			printf("Exception occured: %s\n", e.what());
 
-		printf("Stopping execution of '%s' due to errors\n", argv[1]); 
+		//showError(argv[1]);
 	}
 
 	fclose(fin);
+	remove(CODEFILE);
 	
+
+main_end:
+
 #ifdef _DEBUG 
 	printf("Press any key to exit\n");
 	getchar();
@@ -68,133 +81,112 @@ int main(int argc, char** argv)
 }
 
 
+extern void AppendBuffer(int app);
+extern void ClearBuffer();
+extern std::string GetBuffer();
+
 //////////////////////////
+
+bool isallowed(char c)
+{
+	char allowed[] = { '#', '@', '!', '?', '~', '%', '&', '.', ',' , ':'};
+
+	for (int i = 0; i < sizeof(allowed); i++)
+		if (allowed[i] == c)
+			return true;
+
+	return false;
+}
 
 int yylex()
 {
-	start:
-
-	// skip spaces and next lines
 	int c = fgetc(fin);
-	while (c == ' ' || c == '\n')
-		c = fgetc(fin);
-	
-	// end of operation
-	if (c == ';')
-		return 0;
 
-	// comments
-	if (c == '/')
+	//if (c == ';')
+	//	return 0;
+
+	/* get value of types string char real int
+	if the value in buffer is real or int then it will be converted to yylval < double | int >
+	idea - values of int, real can be stored in buffer and in yylval < double | int > simultaneously
+	then we won't need any convertions int <-> string in he future 
+	*/
+
+	if (isalnum(c) || isallowed(c))
 	{
-		c = fgetc(fin);
+		ClearBuffer();
 
-		// comments begin
-		if (c == '/')
+		while (isalnum(c) || isallowed(c))
 		{
+			AppendBuffer(c);
 			c = fgetc(fin);
-			while (c != '\n')
-				c = fgetc(fin);
-
-			// comments end -> go to begin
-			goto start;
 		}
-	
-		// '/* */' comments begin
-		else if (c == '*')
+
+		// return last char
+		ungetc(c, fin);
+
+		std::string str = GetBuffer();
+
+		try
 		{
-		begin:
+			// is it a real or int
+			if (strchr(str.c_str(), '.'))
+			{
+				// real in buffer - e.g. 345.345
+				yylval.real_t = std::stod(str);
+				return REAL;
+			}
 
-			c = fgetc(fin);
-			while (c != '*' && c != EOF)
-				c = fgetc(fin);
-
-			assert(c != EOF, "Unexpected end of file, but no comment ending */ found");
-
-			// comments end -> go to begin
-			if ((c = fgetc(fin)) == '/')
-				goto start;
 			else
 			{
-				ungetc(c, fin);
-				goto begin;
+				// int in buffer - e.g. 345
+				yylval.real_t = std::stoi(str);
+				return INT;
 			}
 		}
 
-		else 
-			ungetc(c, fin);
-	}
-
-	if (isalpha(c))
-	{
-		yylval.int_t = c;
-		return CHAR;
-	}
-	
-	// get float numbers
-	if (isdigit(c)) 
-	{
-		const int BSZ = 50;
-
-		char buf[BSZ + 1], *cp = buf;
-		int dot = 0;
-	
-		for (; (cp - buf) < BSZ; ++cp, c = fgetc(fin)) 
+		catch (...)
 		{
-			*cp = c;
-			if (isdigit(c))
-				continue;
-			if (c == '.') 
+			// string in buffer
+			// this is one char: a-z A-Z; else - a string such as 12.23.2222asasc#?
+			if (str.length() == 1)
 			{
-				if (dot++)
-					return ('.'); // syntax error
-				continue;
+				yylval.int_t = str[0];
+				return CHAR;
 			}
-
-			// end of number
-			break;
+			else
+				return STRING;
+						
 		}
-
-		if (*(cp - 1) == '.')
-			return '.';
-
-		*cp = ' ';
-		if (cp - buf >= BSZ)
-		{
-			printf("Error: too large constant\n");
-			return '.';
-		}
-		else
-			ungetc(c, fin);
-
-		yylval.real_t = atof(buf);
-		return yylval.real_t == (double)(int)yylval.real_t ? INT : REAL;
 	}
-
 	
 	return c;
 }
 
 void yyerror(const char *s)
 {
-	printf("Error while parsing: '%s'\n", s);
-	showError();
+	throw std::exception("Syntax error:");
 }
 
 
 ////////////
 // find error position
 
-void showError()
+// Lexa do it!
+
+/*
+void showErrorPos()
 {
+	FILE* fin;
+	fopen_s(&fin, real, "r");
 
 	unsigned int FilePos = ftell(fin);
 	rewind(fin);
 
-	int chr;
-
+	int chr = 0;
 	unsigned int LineNum = 0;
 	unsigned int LinePos = 0;
 
+	// determine error line and position
 	for (unsigned int i = 0; i < FilePos; i++, LinePos++)
 	{
 		chr = fgetc(fin);
@@ -208,16 +200,170 @@ void showError()
 				chr = fgetc(fin);
 			}
 
-			++LineNum;
 			LinePos = 0;
+			++LineNum;
 		}
 
 		if (chr == EOF)
-		{
-			printf("Error while obtaining error\n");
-			return;
-		}
+			break;
 	}
 
-	printf("The error character is: '%c'\nOn line '%u' with position '%u'\n", (char)chr, LineNum + 1, LinePos);
+	printf("Line: %u Position: %u\n", LineNum + 1, LinePos);
 }
+
+*/
+
+// works but not always
+void showErrorExpr(const char *real)
+{
+	FILE* f;
+	fopen_s(&f, real, "r");
+	fseek(f, gInstruction + 1, SEEK_SET);
+
+	int c = fgetc(f);
+	while (c != ';' && c != EOF)
+	{
+		putchar(c);
+		c = fgetc(f);
+	}
+
+	if (c == ';')
+		putchar(c);
+
+	putchar('\n');
+	fclose(f);
+}
+
+void showError(const char* real)
+{
+	//showErrorPos(real);
+	showErrorExpr(real);
+}
+
+
+
+/////////////----------- comments /**/, //
+
+// begin from //
+bool skipLineCom(FILE* f)
+{
+	int c = fgetc(f);
+	while (c != '\n' && c != EOF)
+	{
+	//	fputc(' ', o);
+		c = fgetc(f);
+	}
+
+	if (c == '\n')
+	{
+	//	fputc(c, o);
+		return false;
+	}
+
+	return true;
+}
+
+// begin from /*
+bool skipCom(FILE* f)
+{
+	int c = fgetc(f);
+
+	while (1)
+	{
+		while (c != '*' && c != EOF)
+		{
+	//		fputc(' ', o);
+			c = fgetc(f);
+		}
+
+		if (c == EOF)
+			return true;
+
+		c = fgetc(f);
+		if (c == '/')
+			break;
+	}
+
+	return false;
+}
+
+// path_in with comments -> path_out without comments
+void removeComments(const char* path_in, const char* path_out)
+{
+	FILE *in, *out;
+	errno_t b1, b2 = 0;
+
+	b1 = !fopen_s(&in, path_in, "r");
+	b2 = !fopen_s(&out, path_out, "w");
+
+	if (b1 == 0 || b2 == 0)
+	{
+		std::string e = "";
+
+		if (b1 == 0)
+			e += "Unable to read from " + std::string(path_in) + "\n";
+		else
+			fclose(in);
+
+		if (b2 == 0)
+			e += "Unable or write to " + std::string(path_out) + "\n";
+		else
+			fclose(out);
+
+		assert(0, e.c_str());
+	}
+
+
+	/* main code here */
+	bool status = true;
+	int c = fgetc(in);
+
+	while (c != EOF)
+	{
+		while (isspace(c))
+			c = fgetc(fin);
+
+		if (c == '/')
+		{
+			int slash = c;
+			c = fgetc(in);
+			if (c == '/')
+			{
+				if (skipLineCom(in))
+					break;
+			}
+
+			else if (c == '*')
+			{
+				if (skipCom(in))
+				{
+					status = false;
+					break;
+				}
+			}
+
+			else if (c == EOF)
+			{
+				fputc(slash, out);
+				break;
+			}
+
+			else
+			{
+				fputc(slash, out);
+				fputc(c, out);
+			}
+		}
+
+		else
+			fputc(c, out);
+
+		c = fgetc(in);
+	}
+
+	fclose(in);
+	fclose(out);
+	assert(status, "Unexpected end of file, buf no */ found");
+}
+
+/////////////----------- comments
