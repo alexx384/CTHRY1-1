@@ -1,6 +1,8 @@
-#include <stdio.h>
+﻿#include <cstdio>
 #include <ctype.h>
 #include <string>
+
+#include "ErrorProcess.h"
 
 #include "YACC\parse.cpp.h"
 
@@ -12,13 +14,14 @@ extern int yyparse(YYPARSE_PARAM);
 unsigned gInstruction = 0;
 
 FILE* fin = nullptr;
-void showError(const char* real);
 void removeComments(const char*, const char*);
 
 void usage()
 {
 	printf("Usage: program.exe <file>\n");
 }
+
+extern int yychar;
 
 int main(int argc, char** argv)
 {
@@ -31,7 +34,7 @@ int main(int argc, char** argv)
 		goto main_end;
 	}
 
-	if (0 != fopen_s(&fin, argv[1], "r"))
+	if (0 != fopen_s(&fin, argv[1], "rb"))
 	{
 		printf("Could not open file '%s'. Exitting\n", argv[1]);
 		goto main_end;
@@ -60,12 +63,16 @@ int main(int argc, char** argv)
 
 	catch (std::exception e) 
 	{
+		std::cout << (char)yychar << std::endl;
+
 		if (strlen(e.what()) > 0)
 			printf("Exception occured: %s\n", e.what());
 
-		//showError(argv[1]);
+		showErrorPos(argv[1], fin);
 	}
 
+
+	//If it needs
 	fclose(fin);
 	remove(CODEFILE);
 	
@@ -165,86 +172,13 @@ int yylex()
 void yyerror(const char *s)
 {
 	throw std::exception("Syntax error:");
+
 }
-
-
-////////////
-// find error position
-
-// Lexa do it!
-
-/*
-void showErrorPos()
-{
-	FILE* fin;
-	fopen_s(&fin, real, "r");
-
-	unsigned int FilePos = ftell(fin);
-	rewind(fin);
-
-	int chr = 0;
-	unsigned int LineNum = 0;
-	unsigned int LinePos = 0;
-
-	// determine error line and position
-	for (unsigned int i = 0; i < FilePos; i++, LinePos++)
-	{
-		chr = fgetc(fin);
-		if (chr == '\n')
-		{
-			chr = fgetc(fin);
-
-			//If Windows line ending like '\n\r'
-			if (chr == '\r')
-			{
-				chr = fgetc(fin);
-			}
-
-			LinePos = 0;
-			++LineNum;
-		}
-
-		if (chr == EOF)
-			break;
-	}
-
-	printf("Line: %u Position: %u\n", LineNum + 1, LinePos);
-}
-
-*/
-
-// works but not always
-void showErrorExpr(const char *real)
-{
-	FILE* f;
-	fopen_s(&f, real, "r");
-	fseek(f, gInstruction + 1, SEEK_SET);
-
-	int c = fgetc(f);
-	while (c != ';' && c != EOF)
-	{
-		putchar(c);
-		c = fgetc(f);
-	}
-
-	if (c == ';')
-		putchar(c);
-
-	putchar('\n');
-	fclose(f);
-}
-
-void showError(const char* real)
-{
-	//showErrorPos(real);
-	showErrorExpr(real);
-}
-
-
 
 /////////////----------- comments /**/, //
 
-// begin from //
+/* begin from //
+if we are reached EOF then return TRUE otherwise return FALSE */
 bool skipLineCom(FILE* f)
 {
 	int c = fgetc(f);
@@ -263,7 +197,8 @@ bool skipLineCom(FILE* f)
 	return true;
 }
 
-// begin from /*
+/* begin from /*
+if we are reached EOF then return TRUE otherwise return FALSE */
 bool skipCom(FILE* f)
 {
 	int c = fgetc(f);
