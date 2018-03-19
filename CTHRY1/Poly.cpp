@@ -55,8 +55,8 @@ std::string PolyElem::out(bool first)
 
 	for (auto& elem : variableList)
 	{
-		assert(elem.letter != 0, "elem.letter was null at output");
-		assert(elem.power != 0, "elem.power was null at output");
+		assert(elem.letter != 0, "Fatal: elem.letter was null at output");
+		assert(elem.power != 0, "Fatal: elem.power was null at output");
 
 		if (elem.power == 1)
 			s += "*" + std::string(1, elem.letter);
@@ -96,8 +96,8 @@ If its degree was equal to 0, then remove an item from the list
 */
 PolyElem operator^= (PolyElem& leftPoly, const PolyElem& rightPoly)
 {
-	assert(rightPoly.variableList.empty(), "Operation 'x ^ n' where n is not number is not defined");
-	assert(leftPoly.coefficient != 0, "Operation '0 ^ n' has undefined behaviour");
+	assert(rightPoly.variableList.empty(), "Semantic error: operation 'x ^ n' where n is not number is not defined");
+	assert(leftPoly.coefficient != 0, "Semantic error: operation '0 ^ n' has undefined behaviour");
 
 	std::list<Var>& newPolyList = leftPoly.variableList;
 
@@ -208,7 +208,7 @@ Polynomial::Polynomial(const double& ival, const char& cval, const double& ipow)
 
 void Polynomial::assignName(const std::string& x)
 {
-	assert(this->name.empty(), "Name to variable has been already assigned");
+	assert(this->name.empty(), "Fatal: name to variable has been already assigned");
 	name = x;
 }
 
@@ -359,13 +359,13 @@ Exponentiation: (x1 + ... + xm) ^ n
 Polynomial operator^ (const Polynomial& leftPoly, const Polynomial& rightPoly)
 {
 	const std::list<PolyElem>& right = rightPoly.listPoly;
-	assert(right.size() == 1, "Degree must be a single element");
+	assert(right.size() == 1, "Semantic error: degree must be a single element");
 
 	if (leftPoly.listPoly.size() == 1)
 		return Polynomial(leftPoly.listPoly.front() ^ right.front());
 	else
 	{
-		const char* s = "In operation '(Polynomial) ^ n' n must be a non-negative integer";
+		const char* s = "Semantic error: in operation '(Polynomial) ^ n' n must be a non-negative integer";
 		const PolyElem& power = right.front();
 
 		// rightPoly is a number

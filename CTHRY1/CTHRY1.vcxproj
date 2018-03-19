@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Assert.h" />
+    <ClInclude Include="ErrorProcess.h" />
     <ClInclude Include="Poly.h" />
     <ClInclude Include="VarStor.h" />
     <ClInclude Include="YACC\parse.cpp.h" />
@@ -126,6 +127,7 @@
     <None Include="YACC\parse.cpp.output" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ErrorProcess.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Poly.cpp" />
     <ClCompile Include="VarStor.cpp" />

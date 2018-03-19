@@ -1,16 +1,11 @@
 #pragma once
 
-#ifndef ERRORPROCESS_H
-#define ERRORPROCESS_H
-
 #define CODEFILE "ParserTmpFile.txt"
-
-#include <cstdio>
-#include <string>
-#include <iostream>
+#include <stdio.h>
 
 void showErrorPos(const char *FileWithComment, FILE *fin);
+void showErrorLine(FILE * fin);
+
+void removeComments(const char*, const char*);
 bool skipLineCom(FILE* f);
 bool skipCom(FILE* f);
-
-#endif // !ERRORPROCESS_H

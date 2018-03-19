@@ -18,7 +18,6 @@ Polynomial* VarStor::getVarByName(const std::string& VarName)
 	return &it->second;
 }
 
-
 #pragma region Calculation
 
 VarStor gVarStorage;
@@ -68,10 +67,10 @@ Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 	try
 	{
 		// value can only be assigned to variable, not polynomial
-		assert(!leftName.empty(), "Value can not be assigned to left operand");
+		assert(!leftName.empty(), "Semantic error: value can not be assigned to left operand");
 
 		// if rightpoly is not initialized variable
-		assert(!rightPoly.None(), "Right operand was used without being initialized");
+		assert(!rightPoly.None(), "Semantic error: right operand was used without being initialized");
 
 		leftPoly.getValue() = rightPoly.getValue();
 		updateStorage(leftName, leftPoly);
@@ -101,8 +100,8 @@ void check(Polynomial& leftPoly, Polynomial& rightPoly)
 	if (leftName.empty() && rightName.empty())
 		return;
 
-	const char *r = "Right operand was used without being initialized";
-	const char *l = "Left operand was used without being initialized";
+	const char *r = "Semantic error: right operand was used without being initialized";
+	const char *l = "Semantic error: left operand was used without being initialized";
 
 	// var + var
 	if (!leftName.empty() && !rightName.empty())
@@ -132,7 +131,7 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 
 	try
 	{
-		assert(op == '+' || op == '-' || op == '*' || op == '^', "Unknown operation");
+		assert(op == '+' || op == '-' || op == '*' || op == '^', "Fatal: unknown operation");
 		check(a, b);
 
 		switch (op)
@@ -182,12 +181,7 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 
 #pragma region IO
 
-FILE* gStream;
-
-void set_stream(const std::string stream)
-{
-	gStream = stdout;
-}
+FILE* gStream = stdout;
 
 #pragma region output
 
@@ -201,7 +195,7 @@ void output(Polynomial& x)
 	// it's variable
 	if (!x.getName().empty())
 	{
-		std::string s = "Variable [ _" + x.getName() + "_ ] is used without being intialized";
+		std::string s = "Semantic error: variable [ _" + x.getName() + "_ ] is used without being intialized";
 		assert(!x.None(), s);
 	}
 	
@@ -210,7 +204,7 @@ void output(Polynomial& x)
 
 void output(int x, int ch)
 {
-	assert(x > 0, "Error in output stream");
+	assert(x > 0, "Fatal: error in output stream");
 	for (int i = 0; i < x; i++)
 		putc(ch, gStream);
 }

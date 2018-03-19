@@ -8,8 +8,9 @@ typedef struct
 } YYSTYPE;
 #define	REAL	258
 #define	INT	259
-#define	CHAR	260
-#define	STRING	261
+#define	ALPHACHAR	260
+#define	VAR	261
+#define	CSTR	262
 
 
 extern YYSTYPE yylval;

@@ -17,3 +17,4 @@ if (!(x)) throw std::exception(('\'' + std::string(s) + '\''	\
 throw std::exception(('\'' + std::string(s) + '\'').c_str())
 
 #endif // DEBUG
+

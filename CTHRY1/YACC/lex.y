@@ -1,4 +1,4 @@
-%token REAL INT CHAR STRING
+%token REAL INT ALPHACHAR VAR CSTR
 %start operation
 
 ////////////////------------------- inline C code
@@ -18,7 +18,7 @@
 	void ClearBuffer();
 	
 	// return buf data as string 
-	std::string GetBuffer();	
+	const char* GetBuffer();	
 %}
 
 %union 
@@ -58,12 +58,9 @@ extern int yylex();
 
 //-- simple operands 
 
-%type <poly_t> variable 
-%type <int_t> string 
-
 %type <real_t> REAL
 %type <real_t> INT
-%type <int_t> CHAR
+%type <int_t> ALPHACHAR
 
 %type <poly_t> primary
 
@@ -85,33 +82,22 @@ extern int yylex();
 
 %%
 
-/////////////------------ strings and variables
-// string is a sequence of numeric letters and alpha letters
-
-string: CHAR 		{ unused($$); }
-string: STRING 		{ unused($$); }
-string: INT 		{ unused($$); }
-string: REAL 		{ unused($$); }
-
-variable: '_' string '_' { $$ = createVariable(GetBuffer().c_str()); }
-
-/////////////------------ strings and variables
-
 /////////////------------ io operators
 
 operator: out_operator { unused($$); }
 
 // out operator
-out_operator: '$' string 						{ unused($$); set_stream(GetBuffer().c_str()); 	}
-out_operator: operator '<''-' expr_equal 		{ unused($$); output($4); 						}
-out_operator: operator '<''-' '\'' string '\'' 	{ unused($$); output(GetBuffer().c_str()); 		}
-out_operator: operator '<''-' '\'' '\'' 		{ unused($$); }
+out_operator: '$'ALPHACHAR 							{ unused($$); }
 
-// space and \n
-out_operator: operator '<''-' INT '$'		 	{ unused($$); output(int($4), ' '); 			}
-out_operator: operator '<''-' '$' 				{ unused($$); output(int(1),  ' '); 			}
-out_operator: operator '<''-' INT '$''$'		{ unused($$); output(int($4), '\n'); 			}
-out_operator: operator '<''-' '$''$' 			{ unused($$); output(int(1),  '\n'); 			}
+// out expression
+out_operator: out_operator '<''-' expr_equal 		{ unused($$); output($4); }
+
+// out const string
+out_operator: out_operator '<''-' CSTR 				{ unused($$); output(GetBuffer()); }
+
+// out \n
+out_operator: out_operator '<''-' INT '$'		 	{ unused($$); output(int($4), '\n'); 			}
+out_operator: out_operator '<''-' '$' 				{ unused($$); output(int(1),  '\n'); 			}
 
 
 /////////////------------ io operators
@@ -163,7 +149,7 @@ expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); debug_out_p($$, 
 //------- priority * /
 
 // it's possible to multiply number on letter: 2a, ab
-expr_mul:	expr_mul CHAR 				{$$ = calculate($1, Polynomial(1, $2), '*'); debug_out_p($$, "CHAR bin '*'");}
+expr_mul:	expr_mul ALPHACHAR 				{$$ = calculate($1, Polynomial(1, $2), '*'); debug_out_p($$, "CHAR bin '*'");}
 
 expr_mul:	expr_pow;
 expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); debug_out_p($$, "bin '*'");}
@@ -185,12 +171,12 @@ expr_pow:	'-' primary '^' expr_pow 	{$$ = calculate(Polynomial(0), calculate($2,
 //------- highest priority: number, letter
 
 // it's a letter or real/int number
-primary:	CHAR						{ $$ = Polynomial(1, $1); debug_out_p($$, "CHAR"); }
+primary:	ALPHACHAR					{ $$ = Polynomial(1, $1); debug_out_p($$, "CHAR"); }
 primary: 	REAL 						{ $$ = Polynomial($1);    debug_out_p($$, "REAL"); }
 primary: 	INT 						{ $$ = Polynomial($1);    debug_out_p($$, "INT"); }
 
 // it's a variable
-primary:	variable					{ $$ = $1; debug_out_p($$, "Variable"); }
+primary:	VAR							{ $$ = createVariable(GetBuffer()); debug_out_p($$, "Variable"); }
 
 // it's an expression in brackets
 primary: 	'(' expr_add ')' 			{ $$ = $2; debug_out_p($$, "(Term)"); }
@@ -211,7 +197,7 @@ void ClearBuffer()
 	memset(gBuf, 0, MAXSZ);
 }
 
-std::string GetBuffer()
+const char* GetBuffer()
 {
-	return std::string(gBuf);
+	return gBuf;
 }

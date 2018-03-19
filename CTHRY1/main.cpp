@@ -1,20 +1,13 @@
-﻿#include <cstdio>
-#include <ctype.h>
+﻿#include <ctype.h>
 #include <string>
 
 #include "ErrorProcess.h"
-
 #include "YACC\parse.cpp.h"
-
-#define CODEFILE "ParserTmpFile.txt"
 
 #define YYPARSE_PARAM
 extern int yyparse(YYPARSE_PARAM);
 
-unsigned gInstruction = 0;
-
 FILE* fin = nullptr;
-void removeComments(const char*, const char*);
 
 void usage()
 {
@@ -42,6 +35,7 @@ int main(int argc, char** argv)
 
 	c = fgetc(fin);
 	fclose(fin);
+	fin = nullptr;
 	
 	// empty file -> do nothing
 	if (c == EOF)
@@ -63,17 +57,21 @@ int main(int argc, char** argv)
 
 	catch (std::exception e) 
 	{
-		std::cout << (char)yychar << std::endl;
-
+		putchar('\n');
 		if (strlen(e.what()) > 0)
 			printf("Exception occured: %s\n", e.what());
-
-		showErrorPos(argv[1], fin);
+		
+		if (fin)
+		{
+			showErrorLine(fin);
+			showErrorPos(argv[1], fin);
+		}
 	}
 
 
 	//If it needs
-	fclose(fin);
+	if (fin)
+		fclose(fin);
 	remove(CODEFILE);
 	
 
@@ -90,27 +88,38 @@ main_end:
 
 extern void AppendBuffer(int app);
 extern void ClearBuffer();
-extern std::string GetBuffer();
+extern const char* GetBuffer();
 
 //////////////////////////
 
-bool isallowed(char c)
+bool is_allowed(int c)
 {
-	char allowed[] = { '#', '@', '!', '?', '~', '%', '&', '.', ',' , ':'};
+	char A[] = { '#', '~' };
 
-	for (int i = 0; i < sizeof(allowed); i++)
-		if (allowed[i] == c)
+	for (int i = 0; i < sizeof(A); i++)
+	{
+		if (A[i] == c)
 			return true;
+	}
 
 	return false;
+}
+
+char getUntil(FILE* f, bool(*stop_if)(int))
+{
+	int c = fgetc(f);
+	while (!stop_if(c) && c != EOF)
+	{
+		AppendBuffer(c);
+		c = fgetc(f);
+	}
+	
+	return c;
 }
 
 int yylex()
 {
 	int c = fgetc(fin);
-
-	//if (c == ';')
-	//	return 0;
 
 	/* get value of types string char real int
 	if the value in buffer is real or int then it will be converted to yylval < double | int >
@@ -118,187 +127,71 @@ int yylex()
 	then we won't need any convertions int <-> string in he future 
 	*/
 
-	if (isalnum(c) || isallowed(c))
+	// obtain variable name
+	if (c == '_')
 	{
 		ClearBuffer();
+		c = getUntil(fin, [](int x) { return (x == '_' || !isalnum(x)); });
+		assert(c == '_', "Lexical error: not allowed symbol in variable name: " + std::string(1, c));
+		return VAR;
+	}
 
-		while (isalnum(c) || isallowed(c))
+	// obtain const string
+	if (c == '\'')
+	{
+		ClearBuffer();
+		getUntil(fin, [](int x) { return (x == '\''); });
+		return CSTR;
+	}
+
+	if (isalpha(c))
+	{
+		yylval.int_t = c;
+		return ALPHACHAR;
+	}
+
+	if (isdigit(c))
+	{
+		ClearBuffer();
+		while (isdigit(c))
 		{
 			AppendBuffer(c);
 			c = fgetc(fin);
 		}
 
-		// return last char
-		ungetc(c, fin);
-
-		std::string str = GetBuffer();
-
-		try
+		// seems to be real
+		if (c == '.')
 		{
-			// is it a real or int
-			if (strchr(str.c_str(), '.'))
+			AppendBuffer(c);
+			c = fgetc(fin);
+			while (isdigit(c))
 			{
-				// real in buffer - e.g. 345.345
-				yylval.real_t = std::stod(str);
-				return REAL;
+				c = fgetc(fin);
+				AppendBuffer(c);
 			}
 
-			else
-			{
-				// int in buffer - e.g. 345
-				yylval.real_t = std::stoi(str);
-				return INT;
-			}
+			// return last read symbol
+			ungetc(c, fin);
+			yylval.real_t = std::stod(GetBuffer());
+			ClearBuffer();
+			return REAL;
 		}
 
-		catch (...)
+		// seems to be int
+		else
 		{
-			// string in buffer
-			// this is one char: a-z A-Z; else - a string such as 12.23.2222asasc#?
-			if (str.length() == 1)
-			{
-				yylval.int_t = str[0];
-				return CHAR;
-			}
-			else
-				return STRING;
-						
+			ungetc(c, fin);
+			yylval.real_t = std::stoi(GetBuffer());
+			ClearBuffer();
+			return INT;
 		}
+
 	}
-	
+
 	return c;
 }
 
 void yyerror(const char *s)
 {
-	throw std::exception("Syntax error:");
-
+	throw std::exception("Syntax error: ");
 }
-
-/////////////----------- comments /**/, //
-
-/* begin from //
-if we are reached EOF then return TRUE otherwise return FALSE */
-bool skipLineCom(FILE* f)
-{
-	int c = fgetc(f);
-	while (c != '\n' && c != EOF)
-	{
-	//	fputc(' ', o);
-		c = fgetc(f);
-	}
-
-	if (c == '\n')
-	{
-	//	fputc(c, o);
-		return false;
-	}
-
-	return true;
-}
-
-/* begin from /*
-if we are reached EOF then return TRUE otherwise return FALSE */
-bool skipCom(FILE* f)
-{
-	int c = fgetc(f);
-
-	while (1)
-	{
-		while (c != '*' && c != EOF)
-		{
-	//		fputc(' ', o);
-			c = fgetc(f);
-		}
-
-		if (c == EOF)
-			return true;
-
-		c = fgetc(f);
-		if (c == '/')
-			break;
-	}
-
-	return false;
-}
-
-// path_in with comments -> path_out without comments
-void removeComments(const char* path_in, const char* path_out)
-{
-	FILE *in, *out;
-	errno_t b1, b2 = 0;
-
-	b1 = !fopen_s(&in, path_in, "r");
-	b2 = !fopen_s(&out, path_out, "w");
-
-	if (b1 == 0 || b2 == 0)
-	{
-		std::string e = "";
-
-		if (b1 == 0)
-			e += "Unable to read from " + std::string(path_in) + "\n";
-		else
-			fclose(in);
-
-		if (b2 == 0)
-			e += "Unable or write to " + std::string(path_out) + "\n";
-		else
-			fclose(out);
-
-		assert(0, e.c_str());
-	}
-
-
-	/* main code here */
-	bool status = true;
-	int c = fgetc(in);
-
-	while (c != EOF)
-	{
-		while (isspace(c))
-			c = fgetc(fin);
-
-		if (c == '/')
-		{
-			int slash = c;
-			c = fgetc(in);
-			if (c == '/')
-			{
-				if (skipLineCom(in))
-					break;
-			}
-
-			else if (c == '*')
-			{
-				if (skipCom(in))
-				{
-					status = false;
-					break;
-				}
-			}
-
-			else if (c == EOF)
-			{
-				fputc(slash, out);
-				break;
-			}
-
-			else
-			{
-				fputc(slash, out);
-				fputc(c, out);
-			}
-		}
-
-		else
-			fputc(c, out);
-
-		c = fgetc(in);
-	}
-
-	fclose(in);
-	fclose(out);
-	assert(status, "Unexpected end of file, buf no */ found");
-}
-
-/////////////----------- comments
