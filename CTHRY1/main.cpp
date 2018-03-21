@@ -92,19 +92,6 @@ extern const char* GetBuffer();
 
 //////////////////////////
 
-bool is_allowed(int c)
-{
-	char A[] = { '#', '~' };
-
-	for (int i = 0; i < sizeof(A); i++)
-	{
-		if (A[i] == c)
-			return true;
-	}
-
-	return false;
-}
-
 char getUntil(FILE* f, bool(*stop_if)(int))
 {
 	int c = fgetc(f);
@@ -128,11 +115,16 @@ int yylex()
 	*/
 
 	// obtain variable name
-	if (c == '_')
+	if (c == '$')
 	{
 		ClearBuffer();
-		c = getUntil(fin, [](int x) { return (x == '_' || !isalnum(x)); });
-		assert(c == '_', "Lexical error: not allowed symbol in variable name: " + std::string(1, c));
+		c = getUntil(fin, [](int x) { return !isalnum(x); });
+		ungetc(c, fin);
+
+		// it's only '$'
+		if (strlen(GetBuffer()) == 0)
+			return '$';
+
 		return VAR;
 	}
 

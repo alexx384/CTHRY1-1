@@ -87,17 +87,17 @@ extern int yylex();
 operator: out_operator { unused($$); }
 
 // out operator
-out_operator: '$'ALPHACHAR 							{ unused($$); }
+out_operator: '$'VAR 								{ unused($$); }
 
 // out expression
-out_operator: out_operator '<''-' expr_equal 		{ unused($$); output($4); }
+out_operator: out_operator '<''<' expr_equal 		{ unused($$); output($4); }
 
 // out const string
-out_operator: out_operator '<''-' CSTR 				{ unused($$); output(GetBuffer()); }
+out_operator: out_operator '<''<' CSTR 				{ unused($$); output(GetBuffer()); }
 
 // out \n
-out_operator: out_operator '<''-' INT '$'		 	{ unused($$); output(int($4), '\n'); 			}
-out_operator: out_operator '<''-' '$' 				{ unused($$); output(int(1),  '\n'); 			}
+out_operator: out_operator '<''<' INT '$'		 	{ unused($$); output(int($4), '\n'); 			}
+out_operator: out_operator '<''<' '$' 				{ unused($$); output(int(1),  '\n'); 			}
 
 
 /////////////------------ io operators
