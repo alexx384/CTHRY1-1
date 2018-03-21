@@ -150,6 +150,7 @@ expr_add:	expr_add '-' expr_mul 		{$$ = calculate($1, $3, '-'); debug_out_p($$, 
 
 // it's possible to multiply number on letter: 2a, ab
 expr_mul:	expr_mul ALPHACHAR 				{$$ = calculate($1, Polynomial(1, $2), '*'); debug_out_p($$, "CHAR bin '*'");}
+expr_mul: 	expr_mul '(' expr_add ')'		{$$ = calculate($1, $3, '*'); debug_out_p($$, "expr (term) '*'");}
 
 expr_mul:	expr_pow;
 expr_mul:	expr_mul '*' expr_pow 		{$$ = calculate($1, $3, '*'); debug_out_p($$, "bin '*'");}

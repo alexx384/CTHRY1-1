@@ -78,8 +78,8 @@ Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 
 	catch (std::exception e)
 	{
-		std::string poly_left = leftName.empty() ? leftPoly.out() : "_" + leftName + "_";
-		std::string poly_right = rightName.empty() ? rightPoly.out() : "_" + rightName + "_";
+		std::string poly_left = leftName.empty() ? leftPoly.out() : "$" + leftName;
+		std::string poly_right = rightName.empty() ? rightPoly.out() : "$" + rightName;
 
 		printf("Assignment exception occured: %s\n", e.what());
 		printf("Operation [ %s ] = [ %s ]\n", poly_left.c_str(), poly_right.c_str());
@@ -156,8 +156,8 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 
 	catch (std::exception e)
 	{
-		std::string poly_a = !a.getName().empty() ? "_" + a.getName() + "_" : a.out();
-		std::string poly_b = !b.getName().empty() ? "_" + b.getName() + "_" : b.out();
+		std::string poly_a = !a.getName().empty() ? "$" + a.getName() : a.out();
+		std::string poly_b = !b.getName().empty() ? "$" + b.getName() : b.out();
 
 		printf("Calculation exception occured: %s\n", e.what());
 		printf("Operation: [ %s ] %c [ %s ]\n",
@@ -195,7 +195,7 @@ void output(Polynomial& x)
 	// it's variable
 	if (!x.getName().empty())
 	{
-		std::string s = "Semantic error: variable [ _" + x.getName() + "_ ] is used without being intialized";
+		std::string s = "Semantic error: variable [ $" + x.getName() + " ] is used without being intialized";
 		assert(!x.None(), s);
 	}
 	

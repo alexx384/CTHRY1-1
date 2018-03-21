@@ -86,7 +86,7 @@ typedef
 
 
 
-#define	YYFINAL		49
+#define	YYFINAL		52
 #define	YYFLAG		-32768
 #define	YYNTBASE	18
 
@@ -96,13 +96,13 @@ static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     8,     2,     2,     2,    16,
-    17,    14,    12,     2,    13,     2,     2,     2,     2,     2,
+     2,     2,     2,     2,     2,     8,     2,     2,     2,    14,
+    15,    16,    12,     2,    13,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,    10,     9,
     11,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,    15,     2,     2,     2,     2,     2,     2,
+     2,     2,     2,    17,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -125,8 +125,8 @@ static const char yytranslate[] = {     0,
 #if YYDEBUG != 0
 static const short yyprhs[] = {     0,
      0,     2,     5,    10,    15,    21,    26,    28,    31,    34,
-    38,    42,    45,    49,    51,    53,    57,    61,    64,    66,
-    70,    72,    76,    79,    84,    86,    88,    90,    92
+    38,    42,    45,    49,    51,    53,    57,    61,    64,    69,
+    71,    75,    77,    81,    84,    89,    91,    93,    95,    97
 };
 
 static const short yyrhs[] = {    19,
@@ -136,10 +136,10 @@ static const short yyrhs[] = {    19,
     21,    10,     0,    20,    18,    10,     0,    20,    21,    10,
      0,    20,    10,     0,    22,    11,    21,     0,    22,     0,
     23,     0,    22,    12,    23,     0,    22,    13,    23,     0,
-    23,     5,     0,    24,     0,    23,    14,    24,     0,    25,
-     0,    25,    15,    24,     0,    13,    25,     0,    13,    25,
-    15,    24,     0,     5,     0,     3,     0,     4,     0,     6,
-     0,    16,    22,    17,     0
+    23,     5,     0,    23,    14,    22,    15,     0,    24,     0,
+    23,    16,    24,     0,    25,     0,    25,    17,    24,     0,
+    13,    25,     0,    13,    25,    17,    24,     0,     5,     0,
+     3,     0,     4,     0,     6,     0,    14,    22,    15,     0
 };
 
 #endif
@@ -147,13 +147,13 @@ static const short yyrhs[] = {    19,
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
     87,    90,    93,    96,    99,   100,   109,   112,   115,   118,
-   119,   120,   133,   134,   141,   142,   143,   152,   154,   155,
-   162,   163,   165,   166,   174,   175,   176,   179,   182
+   119,   120,   133,   134,   141,   142,   143,   152,   153,   155,
+   156,   163,   164,   166,   167,   175,   176,   177,   180,   183
 };
 
 static const char * const yytname[] = {   "$","error","$undefined.","REAL","INT",
-"ALPHACHAR","VAR","CSTR","'$'","'<'","';'","'='","'+'","'-'","'*'","'^'","'('",
-"')'","operator","out_operator","operation","expr_equal","expr_add","expr_mul",
+"ALPHACHAR","VAR","CSTR","'$'","'<'","';'","'='","'+'","'-'","'('","')'","'*'",
+"'^'","operator","out_operator","operation","expr_equal","expr_add","expr_mul",
 "expr_pow","primary",""
 };
 #endif
@@ -161,61 +161,63 @@ static const char * const yytname[] = {   "$","error","$undefined.","REAL","INT"
 static const short yyr1[] = {     0,
     18,    19,    19,    19,    19,    19,    20,    20,    20,    20,
     20,    20,    21,    21,    22,    22,    22,    23,    23,    23,
-    24,    24,    24,    24,    25,    25,    25,    25,    25
+    23,    24,    24,    24,    24,    25,    25,    25,    25,    25
 };
 
 static const short yyr2[] = {     0,
      1,     2,     4,     4,     5,     4,     1,     2,     2,     3,
-     3,     2,     3,     1,     1,     3,     3,     2,     1,     3,
-     1,     3,     2,     4,     1,     1,     1,     1,     3
+     3,     2,     3,     1,     1,     3,     3,     2,     4,     1,
+     3,     1,     3,     2,     4,     1,     1,     1,     1,     3
 };
 
 static const short yydefact[] = {     0,
-    26,    27,    25,    28,     0,     7,     0,     0,     0,     1,
-     0,     0,    14,    15,    19,    21,     2,    23,     0,     8,
+    27,    28,    26,    29,     0,     7,     0,     0,     0,     1,
+     0,     0,    14,    15,    20,    22,     2,    24,     0,     8,
      0,    12,     0,     0,     9,     0,     0,     0,    18,     0,
-     0,     0,    29,     0,    10,    11,    13,    16,    17,    20,
-    22,    24,    27,     4,     6,     3,     5,     0,     0
+     0,     0,     0,    30,     0,    10,    11,    13,    16,    17,
+     0,    21,    23,    25,    28,     4,     6,     3,    19,     5,
+     0,     0
 };
 
 static const short yydefgoto[] = {     9,
     10,    11,    12,    13,    14,    15,    16
 };
 
-static const short yypact[] = {    16,
--32768,-32768,-32768,-32768,    -4,-32768,    50,    36,     3,    -1,
-     1,     6,    48,    -2,-32768,    -5,-32768,    10,    45,-32768,
-     9,-32768,    20,    21,-32768,    36,    36,    36,-32768,    36,
-    36,    36,-32768,    30,-32768,-32768,-32768,    -2,    -2,-32768,
--32768,-32768,    37,-32768,-32768,-32768,-32768,    44,-32768
+static const short yypact[] = {    22,
+-32768,-32768,-32768,-32768,    -4,-32768,    15,    40,     0,     5,
+     3,     2,    48,    17,-32768,    49,-32768,    50,    37,-32768,
+    25,-32768,    41,    47,-32768,    40,    40,    40,-32768,    40,
+    40,    40,    40,-32768,    34,-32768,-32768,-32768,    17,    17,
+    43,-32768,-32768,-32768,    57,-32768,-32768,-32768,-32768,-32768,
+    68,-32768
 };
 
-static const short yypgoto[] = {    39,
--32768,-32768,   -11,    40,     0,    33,    60
+static const short yypgoto[] = {    58,
+-32768,-32768,   -11,    -7,   -23,    31,    63
 };
 
 
-#define	YYLAST		67
+#define	YYLAST		70
 
 
 static const short yytable[] = {    24,
-    48,    17,    29,     1,     2,     3,     4,    21,     5,    31,
-    22,    30,    20,     7,    37,    25,     8,    34,     1,     2,
-     3,     4,    46,     5,    32,     6,    38,    39,     7,    35,
-    36,     8,     1,    43,     3,     4,    44,    45,     1,     2,
-     3,     4,     7,    49,    47,     8,     0,    19,     7,    23,
-     0,     8,     1,     2,     3,     4,    27,    28,    26,    27,
-    28,    33,    40,    41,    42,     8,    18
+    19,    17,    51,    39,    40,     1,     2,     3,     4,    20,
+     5,    25,    22,    21,    38,     7,     8,     1,     2,     3,
+     4,    29,    41,    48,     1,     2,     3,     4,     8,     5,
+    30,     6,    31,    35,     7,     8,     1,    45,     3,     4,
+    46,    47,     1,     2,     3,     4,     7,     8,    27,    28,
+    36,    34,     7,     8,    27,    28,    37,    49,    26,    27,
+    28,    42,    43,    44,    50,    32,    33,    52,    23,    18
 };
 
 static const short yycheck[] = {    11,
-     0,     6,     5,     3,     4,     5,     6,     9,     8,    15,
-    10,    14,    10,    13,    26,    10,    16,     9,     3,     4,
-     5,     6,    34,     8,    15,    10,    27,    28,    13,    10,
-    10,    16,     3,     4,     5,     6,     7,     8,     3,     4,
-     5,     6,    13,     0,     8,    16,    -1,     8,    13,    11,
-    -1,    16,     3,     4,     5,     6,    12,    13,    11,    12,
-    13,    17,    30,    31,    32,    16,     7
+     8,     6,     0,    27,    28,     3,     4,     5,     6,    10,
+     8,    10,    10,     9,    26,    13,    14,     3,     4,     5,
+     6,     5,    30,    35,     3,     4,     5,     6,    14,     8,
+    14,    10,    16,     9,    13,    14,     3,     4,     5,     6,
+     7,     8,     3,     4,     5,     6,    13,    14,    12,    13,
+    10,    15,    13,    14,    12,    13,    10,    15,    11,    12,
+    13,    31,    32,    33,     8,    17,    17,     0,    11,     7
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
 #line 3 "bison.simple"
@@ -773,40 +775,44 @@ case 18:
 #line 152 "lex.y"
 {yyval.poly_t = calculate(yyvsp[-1].poly_t, Polynomial(1, yyvsp[0].int_t), '*'); debug_out_p(yyval.poly_t, "CHAR bin '*'");;
     break;}
-case 20:
-#line 155 "lex.y"
+case 19:
+#line 153 "lex.y"
+{yyval.poly_t = calculate(yyvsp[-3].poly_t, yyvsp[-1].poly_t, '*'); debug_out_p(yyval.poly_t, "expr (term) '*'");;
+    break;}
+case 21:
+#line 156 "lex.y"
 {yyval.poly_t = calculate(yyvsp[-2].poly_t, yyvsp[0].poly_t, '*'); debug_out_p(yyval.poly_t, "bin '*'");;
     break;}
-case 22:
-#line 163 "lex.y"
-{yyval.poly_t = calculate(yyvsp[-2].poly_t, yyvsp[0].poly_t, '^'); debug_out_p(yyval.poly_t, "bin '^'");;
-    break;}
 case 23:
-#line 165 "lex.y"
-{yyval.poly_t = calculate(Polynomial(0), yyvsp[0].poly_t, '-'); debug_out_p(yyval.poly_t, "unary '-'"); ;
+#line 164 "lex.y"
+{yyval.poly_t = calculate(yyvsp[-2].poly_t, yyvsp[0].poly_t, '^'); debug_out_p(yyval.poly_t, "bin '^'");;
     break;}
 case 24:
 #line 166 "lex.y"
-{yyval.poly_t = calculate(Polynomial(0), calculate(yyvsp[-2].poly_t, yyvsp[0].poly_t, '^'), '-'); debug_out_p(yyval.poly_t, "bin '^'; unary '-'"); ;
+{yyval.poly_t = calculate(Polynomial(0), yyvsp[0].poly_t, '-'); debug_out_p(yyval.poly_t, "unary '-'"); ;
     break;}
 case 25:
-#line 174 "lex.y"
-{ yyval.poly_t = Polynomial(1, yyvsp[0].int_t); debug_out_p(yyval.poly_t, "CHAR"); ;
+#line 167 "lex.y"
+{yyval.poly_t = calculate(Polynomial(0), calculate(yyvsp[-2].poly_t, yyvsp[0].poly_t, '^'), '-'); debug_out_p(yyval.poly_t, "bin '^'; unary '-'"); ;
     break;}
 case 26:
 #line 175 "lex.y"
-{ yyval.poly_t = Polynomial(yyvsp[0].real_t);    debug_out_p(yyval.poly_t, "REAL"); ;
+{ yyval.poly_t = Polynomial(1, yyvsp[0].int_t); debug_out_p(yyval.poly_t, "CHAR"); ;
     break;}
 case 27:
 #line 176 "lex.y"
-{ yyval.poly_t = Polynomial(yyvsp[0].real_t);    debug_out_p(yyval.poly_t, "INT"); ;
+{ yyval.poly_t = Polynomial(yyvsp[0].real_t);    debug_out_p(yyval.poly_t, "REAL"); ;
     break;}
 case 28:
-#line 179 "lex.y"
-{ yyval.poly_t = createVariable(GetBuffer()); debug_out_p(yyval.poly_t, "Variable"); ;
+#line 177 "lex.y"
+{ yyval.poly_t = Polynomial(yyvsp[0].real_t);    debug_out_p(yyval.poly_t, "INT"); ;
     break;}
 case 29:
-#line 182 "lex.y"
+#line 180 "lex.y"
+{ yyval.poly_t = createVariable(GetBuffer()); debug_out_p(yyval.poly_t, "Variable"); ;
+    break;}
+case 30:
+#line 183 "lex.y"
 { yyval.poly_t = yyvsp[-1].poly_t; debug_out_p(yyval.poly_t, "(Term)"); ;
     break;}
 }
@@ -1007,7 +1013,7 @@ yyerrhandle:
   yystate = yyn;
   goto yynewstate;
 }
-#line 186 "lex.y"
+#line 187 "lex.y"
 
 
 void AppendBuffer(int app)
