@@ -4,5 +4,6 @@ $Var1 = 12xy - 80; // first var
 $Var2 = 80 - 12yx; // second var
 
 
-$$out << 'Var1 = ' $Var1 <<
- 'Var2 = ' << $Var2 << 'Result = ' << $Var1 - $Var2 << 3$;
+$$out << 	'Var1 = ' << $Var1 << $ <<
+			'Var2 = ' << $Var2 << $ <<
+			'Result = ' << $Var1 + $Var2 << 3$;
