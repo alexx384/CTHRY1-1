@@ -118,9 +118,9 @@
   <ItemGroup>
     <ClInclude Include="Assert.h" />
     <ClInclude Include="ErrorProcess.h" />
+    <ClInclude Include="parse.cpp.h" />
     <ClInclude Include="Poly.h" />
     <ClInclude Include="VarStor.h" />
-    <ClInclude Include="YACC\parse.cpp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="YACC\bison.simple" />
@@ -130,9 +130,9 @@
   <ItemGroup>
     <ClCompile Include="ErrorProcess.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="parse.cpp" />
     <ClCompile Include="Poly.cpp" />
     <ClCompile Include="VarStor.cpp" />
-    <ClCompile Include="YACC\parse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

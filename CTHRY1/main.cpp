@@ -2,7 +2,7 @@
 #include <string>
 
 #include "ErrorProcess.h"
-#include "YACC\parse.cpp.h"
+#include "parse.cpp.h"
 
 #define YYPARSE_PARAM
 extern int yyparse(YYPARSE_PARAM);

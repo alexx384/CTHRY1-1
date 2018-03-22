@@ -1,0 +1,672 @@
+
+Grammar
+rule 1    operator -> out_operator
+rule 2    out_operator -> '$' VAR
+rule 3    out_operator -> out_operator '<' '<' expr_equal
+rule 4    out_operator -> out_operator '<' '<' CSTR
+rule 5    out_operator -> out_operator '<' '<' INT '$'
+rule 6    out_operator -> out_operator '<' '<' '$'
+rule 7    operation -> ';'
+rule 8    operation -> operator ';'
+rule 9    operation -> expr_equal ';'
+rule 10   operation -> operation operator ';'
+rule 11   operation -> operation expr_equal ';'
+rule 12   operation -> operation ';'
+rule 13   expr_equal -> expr_add '=' expr_equal
+rule 14   expr_equal -> expr_add
+rule 15   expr_add -> expr_mul
+rule 16   expr_add -> expr_add '+' expr_mul
+rule 17   expr_add -> expr_add '-' expr_mul
+rule 18   expr_mul -> expr_mul ALPHACHAR
+rule 19   expr_mul -> expr_mul '(' expr_add ')'
+rule 20   expr_mul -> expr_pow
+rule 21   expr_mul -> expr_mul '*' expr_pow
+rule 22   expr_pow -> primary
+rule 23   expr_pow -> primary '^' expr_pow
+rule 24   expr_pow -> '-' primary
+rule 25   expr_pow -> '-' primary '^' expr_pow
+rule 26   primary -> ALPHACHAR
+rule 27   primary -> REAL
+rule 28   primary -> INT
+rule 29   primary -> VAR
+rule 30   primary -> '(' expr_add ')'
+
+Terminals, with rules where they appear
+
+$ (-1)
+'$' (36) 2 5 6
+'(' (40) 19 30
+')' (41) 19 30
+'*' (42) 21
+'+' (43) 16
+'-' (45) 17 24 25
+';' (59) 7 8 9 10 11 12
+'<' (60) 3 4 5 6
+'=' (61) 13
+'^' (94) 23 25
+error (256)
+REAL (258) 27
+INT (259) 5 28
+ALPHACHAR (260) 18 26
+VAR (261) 2 29
+CSTR (262) 4
+
+Nonterminals, with rules where they appear
+
+operator (18)
+    on left: 1, on right: 8 10
+out_operator (19)
+    on left: 2 3 4 5 6, on right: 1 3 4 5 6
+operation (20)
+    on left: 7 8 9 10 11 12, on right: 10 11 12
+expr_equal (21)
+    on left: 13 14, on right: 3 9 11 13
+expr_add (22)
+    on left: 15 16 17, on right: 13 14 16 17 19 30
+expr_mul (23)
+    on left: 18 19 20 21, on right: 15 16 17 18 19 21
+expr_pow (24)
+    on left: 22 23 24 25, on right: 20 21 23 25
+primary (25)
+    on left: 26 27 28 29 30, on right: 22 23 24 25
+
+
+state 0
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '$' 	shift, and go to state 5
+    ';' 	shift, and go to state 6
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    operator	go to state 9
+    out_operator	go to state 10
+    operation	go to state 11
+    expr_equal	go to state 12
+    expr_add	go to state 13
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 1
+
+    primary  ->  REAL .   (rule 27)
+
+    $default	reduce using rule 27 (primary)
+
+
+
+state 2
+
+    primary  ->  INT .   (rule 28)
+
+    $default	reduce using rule 28 (primary)
+
+
+
+state 3
+
+    primary  ->  ALPHACHAR .   (rule 26)
+
+    $default	reduce using rule 26 (primary)
+
+
+
+state 4
+
+    primary  ->  VAR .   (rule 29)
+
+    $default	reduce using rule 29 (primary)
+
+
+
+state 5
+
+    out_operator  ->  '$' . VAR   (rule 2)
+
+    VAR 	shift, and go to state 17
+
+
+
+state 6
+
+    operation  ->  ';' .   (rule 7)
+
+    $default	reduce using rule 7 (operation)
+
+
+
+state 7
+
+    expr_pow  ->  '-' . primary   (rule 24)
+    expr_pow  ->  '-' . primary '^' expr_pow   (rule 25)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '(' 	shift, and go to state 8
+
+    primary	go to state 18
+
+
+
+state 8
+
+    primary  ->  '(' . expr_add ')'   (rule 30)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_add	go to state 19
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 9
+
+    operation  ->  operator . ';'   (rule 8)
+
+    ';' 	shift, and go to state 20
+
+
+
+state 10
+
+    operator  ->  out_operator .   (rule 1)
+    out_operator  ->  out_operator . '<' '<' expr_equal   (rule 3)
+    out_operator  ->  out_operator . '<' '<' CSTR   (rule 4)
+    out_operator  ->  out_operator . '<' '<' INT '$'   (rule 5)
+    out_operator  ->  out_operator . '<' '<' '$'   (rule 6)
+
+    '<' 	shift, and go to state 21
+
+    $default	reduce using rule 1 (operator)
+
+
+
+state 11
+
+    operation  ->  operation . operator ';'   (rule 10)
+    operation  ->  operation . expr_equal ';'   (rule 11)
+    operation  ->  operation . ';'   (rule 12)
+
+    $   	go to state 51
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '$' 	shift, and go to state 5
+    ';' 	shift, and go to state 22
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    operator	go to state 23
+    out_operator	go to state 10
+    expr_equal	go to state 24
+    expr_add	go to state 13
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 12
+
+    operation  ->  expr_equal . ';'   (rule 9)
+
+    ';' 	shift, and go to state 25
+
+
+
+state 13
+
+    expr_equal  ->  expr_add . '=' expr_equal   (rule 13)
+    expr_equal  ->  expr_add .   (rule 14)
+    expr_add  ->  expr_add . '+' expr_mul   (rule 16)
+    expr_add  ->  expr_add . '-' expr_mul   (rule 17)
+
+    '=' 	shift, and go to state 26
+    '+' 	shift, and go to state 27
+    '-' 	shift, and go to state 28
+
+    $default	reduce using rule 14 (expr_equal)
+
+
+
+state 14
+
+    expr_add  ->  expr_mul .   (rule 15)
+    expr_mul  ->  expr_mul . ALPHACHAR   (rule 18)
+    expr_mul  ->  expr_mul . '(' expr_add ')'   (rule 19)
+    expr_mul  ->  expr_mul . '*' expr_pow   (rule 21)
+
+    ALPHACHAR	shift, and go to state 29
+    '(' 	shift, and go to state 30
+    '*' 	shift, and go to state 31
+
+    $default	reduce using rule 15 (expr_add)
+
+
+
+state 15
+
+    expr_mul  ->  expr_pow .   (rule 20)
+
+    $default	reduce using rule 20 (expr_mul)
+
+
+
+state 16
+
+    expr_pow  ->  primary .   (rule 22)
+    expr_pow  ->  primary . '^' expr_pow   (rule 23)
+
+    '^' 	shift, and go to state 32
+
+    $default	reduce using rule 22 (expr_pow)
+
+
+
+state 17
+
+    out_operator  ->  '$' VAR .   (rule 2)
+
+    $default	reduce using rule 2 (out_operator)
+
+
+
+state 18
+
+    expr_pow  ->  '-' primary .   (rule 24)
+    expr_pow  ->  '-' primary . '^' expr_pow   (rule 25)
+
+    '^' 	shift, and go to state 33
+
+    $default	reduce using rule 24 (expr_pow)
+
+
+
+state 19
+
+    expr_add  ->  expr_add . '+' expr_mul   (rule 16)
+    expr_add  ->  expr_add . '-' expr_mul   (rule 17)
+    primary  ->  '(' expr_add . ')'   (rule 30)
+
+    '+' 	shift, and go to state 27
+    '-' 	shift, and go to state 28
+    ')' 	shift, and go to state 34
+
+
+
+state 20
+
+    operation  ->  operator ';' .   (rule 8)
+
+    $default	reduce using rule 8 (operation)
+
+
+
+state 21
+
+    out_operator  ->  out_operator '<' . '<' expr_equal   (rule 3)
+    out_operator  ->  out_operator '<' . '<' CSTR   (rule 4)
+    out_operator  ->  out_operator '<' . '<' INT '$'   (rule 5)
+    out_operator  ->  out_operator '<' . '<' '$'   (rule 6)
+
+    '<' 	shift, and go to state 35
+
+
+
+state 22
+
+    operation  ->  operation ';' .   (rule 12)
+
+    $default	reduce using rule 12 (operation)
+
+
+
+state 23
+
+    operation  ->  operation operator . ';'   (rule 10)
+
+    ';' 	shift, and go to state 36
+
+
+
+state 24
+
+    operation  ->  operation expr_equal . ';'   (rule 11)
+
+    ';' 	shift, and go to state 37
+
+
+
+state 25
+
+    operation  ->  expr_equal ';' .   (rule 9)
+
+    $default	reduce using rule 9 (operation)
+
+
+
+state 26
+
+    expr_equal  ->  expr_add '=' . expr_equal   (rule 13)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_equal	go to state 38
+    expr_add	go to state 13
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 27
+
+    expr_add  ->  expr_add '+' . expr_mul   (rule 16)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_mul	go to state 39
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 28
+
+    expr_add  ->  expr_add '-' . expr_mul   (rule 17)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_mul	go to state 40
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 29
+
+    expr_mul  ->  expr_mul ALPHACHAR .   (rule 18)
+
+    $default	reduce using rule 18 (expr_mul)
+
+
+
+state 30
+
+    expr_mul  ->  expr_mul '(' . expr_add ')'   (rule 19)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_add	go to state 41
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 31
+
+    expr_mul  ->  expr_mul '*' . expr_pow   (rule 21)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_pow	go to state 42
+    primary	go to state 16
+
+
+
+state 32
+
+    expr_pow  ->  primary '^' . expr_pow   (rule 23)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_pow	go to state 43
+    primary	go to state 16
+
+
+
+state 33
+
+    expr_pow  ->  '-' primary '^' . expr_pow   (rule 25)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 2
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_pow	go to state 44
+    primary	go to state 16
+
+
+
+state 34
+
+    primary  ->  '(' expr_add ')' .   (rule 30)
+
+    $default	reduce using rule 30 (primary)
+
+
+
+state 35
+
+    out_operator  ->  out_operator '<' '<' . expr_equal   (rule 3)
+    out_operator  ->  out_operator '<' '<' . CSTR   (rule 4)
+    out_operator  ->  out_operator '<' '<' . INT '$'   (rule 5)
+    out_operator  ->  out_operator '<' '<' . '$'   (rule 6)
+
+    REAL	shift, and go to state 1
+    INT 	shift, and go to state 45
+    ALPHACHAR	shift, and go to state 3
+    VAR 	shift, and go to state 4
+    CSTR	shift, and go to state 46
+    '$' 	shift, and go to state 47
+    '-' 	shift, and go to state 7
+    '(' 	shift, and go to state 8
+
+    expr_equal	go to state 48
+    expr_add	go to state 13
+    expr_mul	go to state 14
+    expr_pow	go to state 15
+    primary	go to state 16
+
+
+
+state 36
+
+    operation  ->  operation operator ';' .   (rule 10)
+
+    $default	reduce using rule 10 (operation)
+
+
+
+state 37
+
+    operation  ->  operation expr_equal ';' .   (rule 11)
+
+    $default	reduce using rule 11 (operation)
+
+
+
+state 38
+
+    expr_equal  ->  expr_add '=' expr_equal .   (rule 13)
+
+    $default	reduce using rule 13 (expr_equal)
+
+
+
+state 39
+
+    expr_add  ->  expr_add '+' expr_mul .   (rule 16)
+    expr_mul  ->  expr_mul . ALPHACHAR   (rule 18)
+    expr_mul  ->  expr_mul . '(' expr_add ')'   (rule 19)
+    expr_mul  ->  expr_mul . '*' expr_pow   (rule 21)
+
+    ALPHACHAR	shift, and go to state 29
+    '(' 	shift, and go to state 30
+    '*' 	shift, and go to state 31
+
+    $default	reduce using rule 16 (expr_add)
+
+
+
+state 40
+
+    expr_add  ->  expr_add '-' expr_mul .   (rule 17)
+    expr_mul  ->  expr_mul . ALPHACHAR   (rule 18)
+    expr_mul  ->  expr_mul . '(' expr_add ')'   (rule 19)
+    expr_mul  ->  expr_mul . '*' expr_pow   (rule 21)
+
+    ALPHACHAR	shift, and go to state 29
+    '(' 	shift, and go to state 30
+    '*' 	shift, and go to state 31
+
+    $default	reduce using rule 17 (expr_add)
+
+
+
+state 41
+
+    expr_add  ->  expr_add . '+' expr_mul   (rule 16)
+    expr_add  ->  expr_add . '-' expr_mul   (rule 17)
+    expr_mul  ->  expr_mul '(' expr_add . ')'   (rule 19)
+
+    '+' 	shift, and go to state 27
+    '-' 	shift, and go to state 28
+    ')' 	shift, and go to state 49
+
+
+
+state 42
+
+    expr_mul  ->  expr_mul '*' expr_pow .   (rule 21)
+
+    $default	reduce using rule 21 (expr_mul)
+
+
+
+state 43
+
+    expr_pow  ->  primary '^' expr_pow .   (rule 23)
+
+    $default	reduce using rule 23 (expr_pow)
+
+
+
+state 44
+
+    expr_pow  ->  '-' primary '^' expr_pow .   (rule 25)
+
+    $default	reduce using rule 25 (expr_pow)
+
+
+
+state 45
+
+    out_operator  ->  out_operator '<' '<' INT . '$'   (rule 5)
+    primary  ->  INT .   (rule 28)
+
+    '$' 	shift, and go to state 50
+
+    $default	reduce using rule 28 (primary)
+
+
+
+state 46
+
+    out_operator  ->  out_operator '<' '<' CSTR .   (rule 4)
+
+    $default	reduce using rule 4 (out_operator)
+
+
+
+state 47
+
+    out_operator  ->  out_operator '<' '<' '$' .   (rule 6)
+
+    $default	reduce using rule 6 (out_operator)
+
+
+
+state 48
+
+    out_operator  ->  out_operator '<' '<' expr_equal .   (rule 3)
+
+    $default	reduce using rule 3 (out_operator)
+
+
+
+state 49
+
+    expr_mul  ->  expr_mul '(' expr_add ')' .   (rule 19)
+
+    $default	reduce using rule 19 (expr_mul)
+
+
+
+state 50
+
+    out_operator  ->  out_operator '<' '<' INT '$' .   (rule 5)
+
+    $default	reduce using rule 5 (out_operator)
+
+
+
+state 51
+
+    $   	go to state 52
+
+
+
+state 52
+
+    $default	accept

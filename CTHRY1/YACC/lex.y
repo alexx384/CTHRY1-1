@@ -4,7 +4,7 @@
 ////////////////------------------- inline C code
 
 %{
-	#include "../VarStor.h"
+	#include "VarStor.h"
 	#define MAXSZ 255
 	
 	// buf for input string
