@@ -14,33 +14,31 @@ def replaceUnion(path):
     Out.close()
 
 
-if __name__ == "__main__":
-
-    include_str = '#include "VarStor.h"\n'
-    cpp_file = 'parse.cpp'
-    cpp_file_h = 'parse.cpp.h'
+include_str = '#include "VarStor.h"\n'
+cpp_file = 'parse.cpp'
+cpp_file_h = 'parse.cpp.h'
 
     
-    f = open(cpp_file_h, 'r')
-    s = str(f.read())
-    f.close()
+f = open(cpp_file_h, 'r')
+s = str(f.read())
+f.close()
 
-    f = open(cpp_file_h, 'w')
+f = open(cpp_file_h, 'w')
     
-    if (False == s.startswith(include_str)):
-        s = include_str + s    
+if (False == s.startswith(include_str)):
+    s = include_str + s    
 
-    f.write(s)
-    f.close()
+f.write(s)
+f.close()
 
-    replaceUnion(cpp_file)
-    replaceUnion(cpp_file_h)
+replaceUnion(cpp_file)
+replaceUnion(cpp_file_h)
 	
-    upper_dir = os.path.dirname(os.getcwd())
+upper_dir = os.path.dirname(os.getcwd())
 	
-    copyfile(cpp_file, upper_dir + '\\' + cpp_file)
-    copyfile(cpp_file_h, upper_dir + '\\' + cpp_file_h)
+copyfile(cpp_file, upper_dir + '\\' + cpp_file)
+copyfile(cpp_file_h, upper_dir + '\\' + cpp_file_h)
 
-
-
+os.remove(cpp_file)
+os.remove(cpp_file_h)
 

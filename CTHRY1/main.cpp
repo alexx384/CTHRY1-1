@@ -1,5 +1,9 @@
-﻿#include <ctype.h>
-#include <string>
+﻿#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <ctype.h>
+#include <cstring>
 
 #include "ErrorProcess.h"
 #include "parse.cpp.h"
@@ -27,7 +31,8 @@ int main(int argc, char** argv)
 		goto main_end;
 	}
 
-	if (0 != fopen_s(&fin, argv[1], "rb"))
+	fin = fopen(argv[1], "r");
+	if (!fin)
 	{
 		printf("Could not open file '%s'. Exitting\n", argv[1]);
 		goto main_end;
@@ -46,7 +51,8 @@ int main(int argc, char** argv)
 		// launch the copy without comments 
 		removeComments(argv[1], CODEFILE);
 
-		if (0 != fopen_s(&fin, CODEFILE, "r"))
+		fin = fopen(CODEFILE, "r");
+		if (!fin)
 		{
 			printf("Could not open file '%s'. Exitting\n", CODEFILE);
 			goto main_end;
@@ -55,7 +61,7 @@ int main(int argc, char** argv)
 		yyparse();
 	}
 
-	catch (std::exception e) 
+	catch (std::runtime_error e) 
 	{
 		putchar('\n');
 		if (strlen(e.what()) > 0)
@@ -63,7 +69,10 @@ int main(int argc, char** argv)
 		
 		if (fin)
 		{
+			unsigned n = ftell(fin);
 			showErrorLine(fin);
+
+			fseek(fin, n, SEEK_SET);
 			showErrorPos(argv[1], fin);
 		}
 	}
@@ -185,5 +194,5 @@ int yylex()
 
 void yyerror(const char *s)
 {
-	throw std::exception("Syntax error: ");
+	throw std::runtime_error("Syntax error: ");
 }

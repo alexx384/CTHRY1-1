@@ -76,14 +76,14 @@ Polynomial assignVar(Polynomial& leftPoly, Polynomial rightPoly)
 		updateStorage(leftName, leftPoly);
 	}
 
-	catch (std::exception e)
+	catch (std::runtime_error e)
 	{
 		std::string poly_left = leftName.empty() ? leftPoly.out() : "$" + leftName;
 		std::string poly_right = rightName.empty() ? rightPoly.out() : "$" + rightName;
 
 		printf("Assignment exception occured: %s\n", e.what());
 		printf("Operation [ %s ] = [ %s ]\n", poly_left.c_str(), poly_right.c_str());
-		throw std::exception("");
+		throw std::runtime_error("");
 	}
 
 	return leftPoly;
@@ -154,7 +154,7 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 		}
 	}
 
-	catch (std::exception e)
+	catch (std::runtime_error e)
 	{
 		std::string poly_a = !a.getName().empty() ? "$" + a.getName() : a.out();
 		std::string poly_b = !b.getName().empty() ? "$" + b.getName() : b.out();
@@ -163,7 +163,7 @@ Polynomial calculate(Polynomial a, Polynomial b, char op)
 		printf("Operation: [ %s ] %c [ %s ]\n",
 			poly_a.c_str(), op, poly_b.c_str());
 
-		throw std::exception("");
+		throw std::runtime_error("");
 	}
 
 

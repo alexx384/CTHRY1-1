@@ -1,10 +1,11 @@
 #include "Poly.h"
+#include <cmath>
 #include <algorithm>
 
 std::string doubleToString(double x)
 {
 	char buf[56] = { 0 };
-	sprintf_s(buf, sizeof(buf), "%g", x);
+	snprintf(buf, sizeof(buf), "%g", x);
 
 	return std::string(buf);
 }
@@ -103,7 +104,7 @@ PolyElem operator^= (PolyElem& leftPoly, const PolyElem& rightPoly)
 
 	// (1)
 	double power = rightPoly.coefficient;
-	leftPoly.coefficient = pow(leftPoly.coefficient, power);
+	leftPoly.coefficient = std::pow(leftPoly.coefficient, power);
 
 	// (2)
 	for (auto& elem : newPolyList)

@@ -1,6 +1,15 @@
+// project may be compiled in visual studio 2017
+// or g++ main.cpp ErrorProcess.cpp Poly.cpp VarStor.cpp parse.cpp
+
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#include <Windows.h>
+#endif
+
+
 #include "ErrorProcess.h"
 #include "assert.h"
-#include <Windows.h>
+
 
 ////////////
 // find error position
@@ -9,14 +18,14 @@ unsigned int CheckForErrorAtTmpFile(FILE *fin);
 /* Main function that parse file with comments */
 void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 {
-	unsigned int ResArr[2] = { 0 };
 	unsigned int CmdNum = CheckForErrorAtTmpFile(fileWithoutComment);
 
-	FILE * fileWithComment;
+	FILE * fileWithComment = fopen(nameOfFileWithComment, "r");
 
-	if (0 != fopen_s(&fileWithComment, nameOfFileWithComment, "rb"))
+	if (!fileWithComment)
 	{
 		printf("Could not open file '%s'. Exitting\n", nameOfFileWithComment);
+		return;
 	}
 
 	unsigned int LineNum = 0;
@@ -106,115 +115,9 @@ unsigned int CheckForErrorAtTmpFile(FILE *fin)
 }
 
 
-/* If error with brackets, then it shows the error */
-//void CheckForBrackets(long PosStartLine, FILE * fin)
-//{
-//	unsigned int BracketStack = 0;
-//
-//	/* Check that the inFile is EOF
-//	It is necessary because the file stream is closed or paused
-//	and we couldn't read or seek anymore*/
-//	if (feof(fin))
-//	{
-//		/* Clear EOF flags and set start position */
-//		rewind(fin);
-//	}
-//
-//	fseek(fin, PosStartLine, SEEK_SET);
-//
-//	int chr = 0;
-//
-//	for (long i = PosStartLine; (chr != ';') && (chr != EOF); i++)
-//	{
-//		chr = getc(fin);
-//
-//		if (chr == '(')
-//		{
-//			BracketStack++;
-//		}
-//
-//		if (chr == ')')
-//		{
-//			/* If ')' is redundant */
-//			if (BracketStack == 0)
-//			{
-//				printf("Error: redundant bracket ')' \n");
-//				return;
-//			}
-//
-//			BracketStack--;
-//		}
-//	}
-//
-//	/* If not all brackets were closed */
-//	if (BracketStack != 0)
-//	{
-//		printf("Error: redundant bracket '(' \n");
-//		return;
-//	}
-//}
-
-/* Show error expression */
-/*void ShowErrorLine(FILE * fin)
-{
-	int chr = 0;
-
-	unsigned int StartPos = ftell(fin);
-
-	int CorrectionSlashR = 0;
-
-	unsigned int i = 0;
-	for (; (chr != EOF) && (chr != ';'); i++)
-	{
-		chr = fgetc(fin);
-
-		if (chr == '/')
-		{
-			chr = fgetc(fin);
-			i++;
-
-			if (chr == '/')
-			{
-				if (skipLineCom(fin))
-					break;
-				i = ftell(fin) - StartPos;
-			}
-			else if (chr == '*')
-			{
-				if (skipCom(fin))
-					break;
-				i = ftell(fin) - StartPos;
-			}
-		}
-
-		if (chr == '\n')
-		{
-			CorrectionSlashR ++;
-		}
-
-		if (chr == EOF)
-		{
-			rewind(fin);
-
-			fseek(fin, StartPos + i, SEEK_SET);
-		}
-	}
-
-	unsigned int EndPos = ftell(fin);
-
-	fseek(fin, StartPos, SEEK_SET);
-	
-	char *tmp_buf = new char[EndPos - StartPos + 1];
-
-	printf("The error instruction:\n");
-
-	fread(tmp_buf, 1, EndPos - StartPos, fin);
-	fwrite(tmp_buf, 1, EndPos - StartPos, stdout);
-	putchar('\n');
-}*/
-
 void colorTextOut(FILE* f, int cnt)
 {
+#ifdef _WIN32
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	assert(hStdout != INVALID_HANDLE_VALUE, "Fatal: error while getting input handle");
 
@@ -226,6 +129,13 @@ void colorTextOut(FILE* f, int cnt)
 	
 	//reverting back to the normal color
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+#else
+
+	for (int i = 0; i < cnt; i++)
+		printf("\033[1;31m%c\033[0m", fgetc(f));
+
+#endif
 }
 
 void showErrorLine(FILE * fin)
@@ -311,21 +221,20 @@ bool skipCom(FILE* f)
 void removeComments(const char* path_in, const char* path_out)
 {
 	FILE *in, *out;
-	errno_t b1, b2 = 0;
 
-	b1 = !fopen_s(&in, path_in, "r");
-	b2 = !fopen_s(&out, path_out, "w");
+	in = fopen(path_in, "r");
+	out = fopen(path_out, "w");
 
-	if (b1 == 0 || b2 == 0)
+	if (!in || !out)
 	{
 		std::string e = "";
 
-		if (b1 == 0)
+		if (!in)
 			e += "Fatal: unable to read from " + std::string(path_in) + "\n";
 		else
 			fclose(in);
 
-		if (b2 == 0)
+		if (!out)
 			e += "Fatal: unable or write to " + std::string(path_out) + "\n";
 		else
 			fclose(out);
