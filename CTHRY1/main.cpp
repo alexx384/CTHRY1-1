@@ -182,7 +182,7 @@ int yylex()
 		else
 		{
 			ungetc(c, fin);
-			yylval.real_t = std::stoi(GetBuffer());
+			yylval.real_t = std::stod(GetBuffer());
 			ClearBuffer();
 			return INT;
 		}
