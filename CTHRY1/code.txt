@@ -1,4 +1,26 @@
-$a = 5;
-$b = 10;
+/*
+This is a demonstration code 
+it's really comfortable writing 
+code with C syntax highlighter
+*/
 
-$$out << 12.2.2 << $;
+$$out << '****************************' << 2$;
+
+$Var1 = 12xy - 80; // first var 
+$Var2 = 80 - 12yx; // second var
+$Var3 = $Var2(4 + 8x);
+
+$$out << 'Demo 0:' << $;
+$$out << 	'Var1 = ' << $Var1 << $ <<
+			'Var2 = ' << Var << $ <<
+			'Result = ' << $Var1 + $ Var2 << 2$;
+			
+$$out << 'Demo 1: ' << ((x + y)(y + z))ab << $;
+$$out << 'Demo 2: ' << a^2^3 /*implicitly mul */ (4 + 8(-3)) << $;
+$$out << 'Demo 3: ' <<  -$Var1(4 + 8(-3)) << 2$;
+
+$$out << 'Demo 4: ' <<  (-1)^2 * (x-2) ^ 3 << $;
+$$out << 'Demo 5: ' <<  (x ^ 2.11 + z ^ 3.33) ^ 2  << $;
+$$out << 'Demo 6: ' <<  (x ^ 2 + x ^ (-2))^3 << 2$;
+
+$$out << '****************************' << $;

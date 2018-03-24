@@ -18,7 +18,6 @@ void usage()
 	printf("Usage: program.exe <file>\n");
 }
 
-extern int yychar;
 
 int main(int argc, char** argv)
 {
@@ -83,7 +82,7 @@ int main(int argc, char** argv)
 		fclose(fin);
 	remove(CODEFILE);
 	
-
+	
 main_end:
 
 #ifdef _DEBUG 
@@ -116,12 +115,6 @@ char getUntil(FILE* f, bool(*stop_if)(int))
 int yylex()
 {
 	int c = fgetc(fin);
-
-	/* get value of types string char real int
-	if the value in buffer is real or int then it will be converted to yylval < double | int >
-	idea - values of int, real can be stored in buffer and in yylval < double | int > simultaneously
-	then we won't need any convertions int <-> string in he future 
-	*/
 
 	// obtain variable name
 	if (c == '$')
@@ -167,13 +160,13 @@ int yylex()
 			c = fgetc(fin);
 			while (isdigit(c))
 			{
-				c = fgetc(fin);
 				AppendBuffer(c);
+				c = fgetc(fin);
 			}
 
 			// return last read symbol
 			ungetc(c, fin);
-			yylval.real_t = std::stod(GetBuffer());
+			yylval.real_t = std::atof(GetBuffer());
 			ClearBuffer();
 			return REAL;
 		}
@@ -182,7 +175,7 @@ int yylex()
 		else
 		{
 			ungetc(c, fin);
-			yylval.real_t = std::stod(GetBuffer());
+			yylval.real_t = std::atof(GetBuffer());
 			ClearBuffer();
 			return INT;
 		}
