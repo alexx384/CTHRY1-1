@@ -1,4 +1,4 @@
-#Polynomial language interpreter
+# Polynomial language interpreter
 
 This project was done using YACC and C++
 
