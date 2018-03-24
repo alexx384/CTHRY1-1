@@ -87,7 +87,7 @@ void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 //Return count of commands which end by ';'
 unsigned int CheckForErrorAtTmpFile(FILE *fin)
 {
-	unsigned int FilePos = ftell(fin);
+	unsigned int FilePos = ftell(fin) - 1;
 	rewind(fin);
 
 	int chr = 0;
