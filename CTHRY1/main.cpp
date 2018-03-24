@@ -1,4 +1,18 @@
-﻿#ifdef _WIN32
+﻿/*
+
+Pavel Knyazev
+Alexey Palyoniy
+
+Code for linux and windows
+
+Compile using visual studio 2017 compiler
+or place files into one folder and: g++ ErrorProcess.cpp main.cpp parse.cpp Poly.cpp VarStor.cpp
+In linux use unix end line endings. In windows use windows line endings
+
+*/
+ 
+
+#ifdef _WIN32
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 

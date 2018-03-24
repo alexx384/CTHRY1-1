@@ -300,7 +300,8 @@ void removeComments(const char* path_in, const char* path_out)
 		}
 
 		else
-			fputc(c, out);
+			if (c != EOF)
+				fputc(c, out);
 
 		c = fgetc(in);
 	}
