@@ -29,12 +29,11 @@ void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 	}
 
 	unsigned int LineNum = 0;
-	unsigned int LinePos = 0;
 
 	unsigned int i = 0;
 	unsigned int CmdCnt = 0;
 	int chr = 0;
-	for (; (chr != EOF) && (CmdCnt < CmdNum) ; i++, LinePos++)
+	for (; (chr != EOF) && (CmdCnt < CmdNum) ; i++)
 	{
 		chr = fgetc(fileWithComment);
 		switch (chr)
@@ -42,7 +41,6 @@ void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 		case '\n':
 		{
 			LineNum++;
-			LinePos = 0;
 		} break;
 		case ';':
 		{
@@ -53,12 +51,13 @@ void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 			chr = fgetc(fileWithComment);
 			if (chr == '/')
 			{
+				LineNum++;
 				if (skipLineCom(fileWithComment))
 					break;
 			}
 			else if (chr == '*')
 			{
-				if (skipCom(fileWithComment))
+				if (skipCom(fileWithComment, &LineNum))
 					break;
 			}
 		} break;
@@ -196,14 +195,19 @@ bool skipLineCom(FILE* f)
 
 /* begin from /*
 if we are reached EOF then return TRUE otherwise return FALSE */
-bool skipCom(FILE* f)
+bool skipCom(FILE* f, unsigned* cnt)
 {
 	int c = fgetc(f);
 
 	while (1)
 	{
 		while (c != '*' && c != EOF)
+		{
+			if (cnt != nullptr && c == '\n')
+				(*cnt)++;
+
 			c = fgetc(f);
+		}
 
 		if (c == EOF)
 			return true;
