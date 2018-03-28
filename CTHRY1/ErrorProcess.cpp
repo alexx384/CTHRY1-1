@@ -74,10 +74,47 @@ void showErrorPos(const char *nameOfFileWithComment, FILE *fileWithoutComment)
 		}
 	}
 
-	for (; (chr = getc(fileWithComment)) == '\n'; LineNum++)
-		;
+	bool isNotImportantSymbol;
 
-	fseek(fileWithComment, -1, SEEK_CUR);
+	do
+	{
+		isNotImportantSymbol = false;
+
+		chr = fgetc(fileWithComment);
+		switch (chr)
+		{
+		case '\n':
+		{
+			LineNum++;
+			isNotImportantSymbol = true;
+		} break;
+		case ';':
+		{
+			isNotImportantSymbol = true;
+		} break;
+		case '/':
+		{
+			isNotImportantSymbol = true;
+			chr = fgetc(fileWithComment);
+			if (chr == '/')
+			{
+				LineNum++;
+				if (skipLineCom(fileWithComment))
+					break;
+			}
+			else if (chr == '*')
+			{
+				if (skipCom(fileWithComment, &LineNum))
+					break;
+			}
+		} break;
+		}
+
+		if (chr == EOF)
+		{
+			isNotImportantSymbol = false;
+		}
+	} while (isNotImportantSymbol);
 
 	printf("Number of Error line: %d\n", LineNum + 1);
 	fclose(fileWithComment);
